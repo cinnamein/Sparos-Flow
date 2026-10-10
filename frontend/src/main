@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+    <title>spharos FLOW - 근무자 매장 운영 대시보드</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="flow/shared/tailwind-config.js"></script>
+    <link rel="stylesheet" href="flow/shared/styles.css">
+    <style>
+        body {
+            background-color: #fefefe;
+            color: #0b1c30;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        input[type="checkbox"]:checked {
+            background-color: #02152f;
+            border-color: #02152f;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .custom-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="bg-surface-bg min-h-screen text-on-surface flex justify-center pb-24 selection:bg-secondary-fixed selection:text-text-primary">
+    <div class="w-full max-w-[420px] bg-surface-bg min-h-screen flex flex-col relative shadow-sm">
+        <!-- Header -->
+        <header class="sticky top-0 left-0 right-0 z-40 bg-surface-container-lowest/95 backdrop-blur-md px-margin h-14 flex items-center justify-between border-b border-border-subtle shadow-sm">
+            <div class="flex items-center gap-2">
+                <div class="flex items-center">
+                    <div class="h-6 flex items-center">
+                        <img src="https://lh3.googleusercontent.com/aida/AEtjO1Xye4MvKtCK0QPNzIVOdFdnHyYvQ6y1R1t3ohdAAuUtJNBsDam6zdV4IulR72l5aF8XAK8X9TZSmCnHlfTnGKvYuRtcSzajq8NLhSQUljQzqmPNRtkBB14nzmmjQUhzJgWnaW_H2l5vnZKB27YpKsAanUQgzeI0kb9Touvrq5juYGFXu2JKkfk3Se2DT8hM_lraIlb_XGVvgKa8CRhpDqlivG1epBDwU0f6M0xy2qrDv1Yw7ejB1e3z8FU"
+                            alt="spharos FLOW" class="h-6 w-auto object-contain">
+                    </div>
+                </div>
+                <div class="h-3.5 w-px bg-outline-variant"></div>
+                <div class="flex items-center gap-1.5 bg-surface-muted px-2 py-0.5 rounded-full border border-border-subtle">
+                    <span class="w-1.5 h-1.5 rounded-full bg-status-active animate-pulse"></span>
+                    <span class="font-caption text-caption text-text-primary font-semibold">CU 강남중앙점</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1 bg-surface-container-low px-2 py-0.5 rounded font-mono-data text-mono-data text-text-primary font-bold">
+                    <span class="material-symbols-outlined text-[13px] text-secondary">schedule</span>
+                    <span id="live-clock">16:01:17</span>
+                </div>
+                <button aria-label="알림" class="relative w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-muted text-on-surface active:scale-95 transition-transform" type="button">
+                    <span class="material-symbols-outlined text-[20px]">notifications</span>
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-alert-critical ring-2 ring-white"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 px-margin py-3 space-y-space-lg">
+            <!-- 1. Staff Welcome -->
+            <div class="flex items-center justify-between py-1 px-0.5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-text-primary text-secondary-fixed-dim flex items-center justify-center font-bold text-sm shadow-inner">
+                        <span class="material-symbols-outlined text-[22px]">badge</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <h1 class="font-headline-md text-headline-md text-text-primary">좋은 하루입니다, 김알바님!</h1>
+                        </div>
+                        <div class="flex items-center gap-1.5 mt-0.5">
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-secondary-fixed-dim/20 text-on-secondary-fixed-variant border border-secondary-fixed-dim/40 font-badge-sm">근무중</span>
+                            <span class="font-caption text-caption text-text-muted">오전 시프트 (08:00 ~ 14:00)</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="w-8 h-8 rounded-lg bg-surface-muted text-text-muted hover:text-text-primary flex items-center justify-center border border-border-subtle active:scale-95" title="교대 및 상태 변경">
+                    <span class="material-symbols-outlined text-[18px]">more_vert</span>
+                </button>
+            </div>
+
+            <!-- 2. Barcode Quick Scan -->
+            <section class="bg-surface-container-lowest rounded-xl p-space-md border border-border-subtle shadow-[0_1px_2px_rgba(0,0,0,0.04)] space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-3.5 bg-secondary-fixed-dim rounded-xs"></span>
+                        <span class="font-title-sm text-title-sm text-text-primary">현장 즉시 바코드 스캔</span>
+                    </div>
+                    <span class="font-caption text-caption text-text-muted flex items-center gap-0.5">
+                        <span class="material-symbols-outlined text-[14px] text-status-active">sensors</span>
+                        리더기 연동됨
+                    </span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-text-muted">
+                            <span class="material-symbols-outlined text-[18px]">barcode_scanner</span>
+                        </div>
+                        <input class="w-full pl-8 pr-3 py-2 text-xs font-mono-data bg-surface-muted rounded-lg border border-border-subtle text-text-primary placeholder:text-text-muted focus:ring-1 focus:ring-secondary-fixed-dim focus:border-secondary-fixed-dim outline-none transition-all"
+                            inputmode="numeric" placeholder="상품 바코드 8~13자리 스캔 또는 직접 입력" type="text">
+                    </div>
+                    <button class="bg-text-primary hover:bg-inverse-surface text-white px-3.5 py-2 rounded-lg font-title-sm text-xs flex items-center gap-1 shrink-0 active:scale-95 transition-transform shadow-sm">
+                        <span class="material-symbols-outlined text-[16px] text-secondary-fixed-dim">qr_code_scanner</span>
+                        <span>스캔</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 3. Morning Task Completion Rate & Checklist -->
+            <section class="bg-surface-container-lowest rounded-xl p-space-md border border-border-subtle shadow-[0_1px_2px_rgba(0,0,0,0.04)] space-y-space-lg">
+                <!-- Completion Rate -->
+                <div class="space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="flex items-baseline gap-1.5">
+                                <span class="font-headline-md text-headline-md text-text-primary">오전 업무 완수율</span>
+                                <span class="font-mono-metric text-mono-metric text-text-primary">75%</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-[11px] text-on-surface-variant font-medium">근무 마감까지</div>
+                            <div class="flex items-center justify-end gap-1 text-[13px] font-bold text-secondary">
+                                <span class="material-symbols-outlined text-[14px]">timer</span>
+                                <span>잔여 2시간 30분</span>
+                                <span class="text-[10px] text-on-surface-variant font-normal">(14:00)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full bg-surface-muted h-2.5 rounded-full overflow-hidden p-0.5 border border-border-subtle">
+                        <div class="bg-gradient-to-r from-text-primary via-text-primary to-secondary-fixed-dim h-full rounded-full transition-all duration-500 relative" style="width: 75%;">
+                            <span class="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-white shadow-sm"></span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 pt-1 border-t border-border-subtle">
+                        <div class="bg-surface-muted rounded-lg p-2 text-center">
+                            <span class="font-caption text-[11px] text-text-muted block">완료 건수</span>
+                            <span class="font-mono-data text-sm font-bold text-text-primary">3건</span>
+                        </div>
+                        <div class="bg-surface-muted rounded-lg p-2 text-center">
+                            <span class="font-caption text-[11px] text-text-muted block">잔여 과업</span>
+                            <span class="font-mono-data text-sm font-bold text-secondary">1건</span>
+                        </div>
+                        <div class="bg-surface-muted rounded-lg p-2 text-center">
+                            <span class="font-caption text-[11px] text-text-muted block">전체 업무</span>
+                            <span class="font-mono-data text-sm font-bold text-text-muted">4건</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-border-subtle"></div>
+
+                <!-- Checklist -->
+                <div class="space-y-2.5">
+                    <div class="flex items-center justify-between pb-1 border-b border-border-subtle">
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[18px] text-text-primary">checklist</span>
+                            <h2 class="font-title-sm text-title-sm text-text-primary">당일 업무 체크리스트</h2>
+                        </div>
+                        <button class="font-caption text-caption text-text-muted hover:text-text-primary flex items-center gap-0.5">
+                            <span class="material-symbols-outlined text-[14px]">done_all</span>
+                            <span>전체보기</span>
+                        </button>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <!-- Task: 마감할인 라벨 부착 (Urgent) -->
+                        <label class="flex items-start gap-2.5 p-2 rounded-lg bg-alert-warning-bg/60 border-l-4 border-secondary-fixed-dim border-t border-r border-b border-border-subtle cursor-pointer transition-colors shadow-sm">
+                            <input class="mt-0.5 rounded text-text-primary focus:ring-secondary-fixed-dim accent-text-primary w-4 h-4 cursor-pointer" type="checkbox">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-body-md text-xs font-bold text-text-primary truncate">신선식품(FF) 라스트픽 마감할인 라벨 부착</span>
+                                    <span class="font-badge-sm text-[10px] px-1.5 py-0.5 rounded bg-secondary-fixed-dim text-on-secondary-fixed font-bold">10:00 마감</span>
+                                </div>
+                                <p class="font-caption text-[11px] text-on-secondary-fixed-variant mt-0.5 font-medium">도시락, 샌드위치 3종 즉시 바코드 부착 필요</p>
+                            </div>
+                        </label>
+
+                        <!-- Task: 담배 시재 점검 -->
+                        <label class="flex items-start gap-2.5 p-2 rounded-lg bg-surface-container-lowest border border-border-subtle cursor-pointer hover:bg-surface-muted transition-colors">
+                            <input class="mt-0.5 rounded text-text-primary focus:ring-secondary-fixed-dim accent-text-primary w-4 h-4 cursor-pointer" type="checkbox">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-body-md text-xs font-semibold text-text-primary truncate">담배 시재 및 금고 점검</span>
+                                    <span class="font-badge-sm text-[10px] px-1.5 py-0.5 rounded bg-surface-muted text-text-muted">13:30</span>
+                                </div>
+                                <p class="font-caption text-[11px] text-text-muted mt-0.5">오후 교대 근무자 인수인계 전 시재 확인</p>
+                            </div>
+                        </label>
+
+                        <!-- Task: 소비기한 점검 (Done) -->
+                        <label class="flex items-start gap-2.5 p-2 rounded-lg bg-surface-muted/60 border border-border-subtle cursor-pointer hover:bg-surface-muted transition-colors">
+                            <input checked class="mt-0.5 rounded text-text-primary focus:ring-secondary-fixed-dim accent-text-primary w-4 h-4 cursor-pointer" type="checkbox">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-body-md text-xs font-semibold text-text-muted line-through truncate">오전 1차 소비기한 점검 &amp; 폐기 등록</span>
+                                    <span class="font-badge-sm text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-text-muted">08:45</span>
+                                </div>
+                                <p class="font-caption text-[11px] text-text-muted mt-0.5">FF 신선식품 및 즉석조리 코너 전수 검사</p>
+                            </div>
+                        </label>
+
+                        <!-- Task: 음료 보충 (Done) -->
+                        <label class="flex items-start gap-2.5 p-2 rounded-lg bg-surface-muted/60 border border-border-subtle cursor-pointer hover:bg-surface-muted transition-colors">
+                            <input checked class="mt-0.5 rounded text-text-primary focus:ring-secondary-fixed-dim accent-text-primary w-4 h-4 cursor-pointer" type="checkbox">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-body-md text-xs font-semibold text-text-muted line-through truncate">워크인 쿨러 음료 전면 보충 진열</span>
+                                    <span class="font-badge-sm text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-text-muted">09:15</span>
+                                </div>
+                                <p class="font-caption text-[11px] text-text-muted mt-0.5">인기 캔커피 및 생수 선입선출 진열 완료</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <button class="w-full py-2 bg-surface-muted hover:bg-surface-container rounded-lg border border-border-subtle text-xs font-body-md text-text-primary flex items-center justify-center gap-1 active:scale-[0.98] transition-all">
+                        <span class="material-symbols-outlined text-[16px]">add_task</span>
+                        <span>새 업무 등록</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 5. Expiry Date Status -->
+            <section class="bg-surface-container-lowest rounded-xl p-space-md border border-border-subtle shadow-[0_1px_2px_rgba(0,0,0,0.04)] space-y-2.5">
+                <div class="flex items-center justify-between pb-1 border-b border-border-subtle">
+                    <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[18px] text-alert-critical">schedule</span>
+                        <h2 class="font-title-sm text-title-sm text-text-primary">소비기한 현황</h2>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <!-- Row 1: High Urgency -->
+                    <div class="p-2.5 rounded-lg bg-surface-muted border border-border-subtle flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <span class="w-2 h-2 rounded-full bg-alert-critical shrink-0"></span>
+                                <span class="font-body-md text-xs font-bold text-text-primary truncate">참치마요 삼각김밥 105g</span>
+                            </div>
+                            <span class="font-mono-data text-xs text-alert-critical font-bold shrink-0">잔여 1시간 15분</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs pt-1 border-t border-border-subtle/80">
+                            <div class="flex items-center gap-2 font-caption text-[11px] text-text-muted">
+                                <span>만료: <b class="font-mono-data text-text-primary">11:00</b></span>
+                                <span class="text-outline-variant">|</span>
+                                <span>수량: <b class="font-mono-data text-text-primary">2개</b></span>
+                            </div>
+                            <button class="px-2.5 py-1 bg-text-primary hover:bg-inverse-surface text-white rounded text-[11px] font-title-sm flex items-center gap-0.5 active:scale-95 transition-transform shadow-sm">
+                                <span class="material-symbols-outlined text-[13px] text-secondary-fixed-dim">delete_sweep</span>
+                                <span>폐기 등록</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Medium Urgency -->
+                    <div class="p-2.5 rounded-lg bg-surface-muted border border-border-subtle flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <span class="w-2 h-2 rounded-full bg-secondary-fixed-dim shrink-0"></span>
+                                <span class="font-body-md text-xs font-bold text-text-primary truncate">에그 샌드위치 180g</span>
+                            </div>
+                            <span class="font-mono-data text-xs text-secondary font-bold shrink-0">잔여 2시간 30분</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs pt-1 border-t border-border-subtle/80">
+                            <div class="flex items-center gap-2 font-caption text-[11px] text-text-muted">
+                                <span>만료: <b class="font-mono-data text-text-primary">12:00</b></span>
+                                <span class="text-outline-variant">|</span>
+                                <span>수량: <b class="font-mono-data text-text-primary">1개</b></span>
+                            </div>
+                            <button class="px-2.5 py-1 bg-text-primary hover:bg-inverse-surface text-white rounded text-[11px] font-title-sm flex items-center gap-0.5 active:scale-95 transition-transform shadow-sm">
+                                <span class="material-symbols-outlined text-[13px] text-secondary-fixed-dim">delete_sweep</span>
+                                <span>폐기 등록</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Daily Expiry -->
+                    <div class="p-2.5 rounded-lg bg-surface-muted border border-border-subtle flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <span class="w-2 h-2 rounded-full bg-status-active shrink-0"></span>
+                                <span class="font-body-md text-xs font-bold text-text-primary truncate">바나나우유 240ml</span>
+                            </div>
+                            <span class="font-mono-data text-xs text-text-muted font-bold shrink-0">오늘 24:00 만료</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs pt-1 border-t border-border-subtle/80">
+                            <div class="flex items-center gap-2 font-caption text-[11px] text-text-muted">
+                                <span>만료: <b class="font-mono-data text-text-primary">24:00</b></span>
+                                <span class="text-outline-variant">|</span>
+                                <span>수량: <b class="font-mono-data text-text-primary">4개</b></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Last Pick Discount -->
+            <section class="bg-surface-container-lowest rounded-xl p-space-md border border-border-subtle shadow-[0_1px_2px_rgba(0,0,0,0.04)] space-y-2.5">
+                <div class="flex items-center justify-between pb-1 border-b border-border-subtle">
+                    <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[18px] text-secondary">local_offer</span>
+                        <div class="flex items-center gap-1">
+                            <h2 class="font-title-sm text-title-sm text-text-primary">라스트픽 마감할인 현황</h2>
+                            <span class="font-badge-sm text-[10px] px-1.5 py-0.5 rounded-full bg-secondary-fixed-dim/20 text-on-secondary-fixed-variant font-bold border border-secondary-fixed-dim/40">진행중 4건</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <!-- Discount Item 1 -->
+                    <div class="p-2.5 rounded-lg bg-surface-muted border border-border-subtle flex items-center justify-between gap-2">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-badge-sm text-[10px] px-1.5 py-0.5 bg-alert-critical text-white rounded font-bold">30% OFF</span>
+                                <h3 class="font-body-md text-xs font-bold text-text-primary truncate">치킨마요 도시락</h3>
+                            </div>
+                            <div class="flex items-center gap-1.5 mt-1 font-mono-data text-xs">
+                                <span class="text-text-muted line-through text-[11px]">4,500원</span>
+                                <span class="material-symbols-outlined text-[12px] text-text-muted">arrow_forward</span>
+                                <span class="text-text-primary font-bold">3,150원</span>
+                                <span class="text-text-muted text-[10px] ml-1">잔여 2개</span>
+                            </div>
+                        </div>
+                        <button class="px-2.5 py-1 bg-text-primary hover:bg-inverse-surface text-white rounded text-[11px] font-title-sm flex items-center gap-0.5 shrink-0 active:scale-95 transition-transform shadow-sm">
+                            <span class="material-symbols-outlined text-[13px] text-secondary-fixed-dim">delete_sweep</span>
+                            <span>폐기 등록</span>
+                        </button>
+                    </div>
+
+                    <!-- Discount Item 2 -->
+                    <div class="p-2.5 rounded-lg bg-surface-muted border border-border-subtle flex items-center justify-between gap-2">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-badge-sm text-[10px] px-1.5 py-0.5 bg-secondary-fixed-dim text-on-secondary-fixed rounded font-bold">20% OFF</span>
+                                <h3 class="font-body-md text-xs font-bold text-text-primary truncate">햄치즈 베이글</h3>
+                            </div>
+                            <div class="flex items-center gap-1.5 mt-1 font-mono-data text-xs">
+                                <span class="text-text-muted line-through text-[11px]">3,200원</span>
+                                <span class="material-symbols-outlined text-[12px] text-text-muted">arrow_forward</span>
+                                <span class="text-text-primary font-bold">2,560원</span>
+                                <span class="text-text-muted text-[10px] ml-1">잔여 1개</span>
+                            </div>
+                        </div>
+                        <button class="px-2.5 py-1 bg-text-primary hover:bg-inverse-surface text-white rounded text-[11px] font-title-sm flex items-center gap-0.5 shrink-0 active:scale-95 transition-transform shadow-sm">
+                            <span class="material-symbols-outlined text-[13px] text-secondary-fixed-dim">delete_sweep</span>
+                            <span>폐기 등록</span>
+                        </button>
+                    </div>
+
+                    <!-- Discount Item 3 -->
+                    <div class="p-2.5 rounded-lg bg-surface-muted border border-border-subtle flex items-center justify-between gap-2">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-badge-sm text-[10px] px-1.5 py-0.5 bg-secondary-fixed-dim text-on-secondary-fixed rounded font-bold">20% OFF</span>
+                                <h3 class="font-body-md text-xs font-bold text-text-primary truncate">딸기 크림빵</h3>
+                            </div>
+                            <div class="flex items-center gap-1.5 mt-1 font-mono-data text-xs">
+                                <span class="text-text-muted line-through text-[11px]">2,000원</span>
+                                <span class="material-symbols-outlined text-[12px] text-text-muted">arrow_forward</span>
+                                <span class="text-text-primary font-bold">1,600원</span>
+                                <span class="text-text-muted text-[10px] ml-1">잔여 3개</span>
+                            </div>
+                        </div>
+                        <button class="px-2.5 py-1 bg-text-primary hover:bg-inverse-surface text-white rounded text-[11px] font-title-sm flex items-center gap-0.5 shrink-0 active:scale-95 transition-transform shadow-sm">
+                            <span class="material-symbols-outlined text-[13px] text-secondary-fixed-dim">delete_sweep</span>
+                            <span>폐기 등록</span>
+                        </button>
+                    </div>
+                </div>
+
+                <button class="w-full py-2 bg-text-primary hover:bg-inverse-surface text-white rounded-lg font-title-sm text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-sm">
+                    <span class="material-symbols-outlined text-[16px] text-secondary-fixed-dim">label</span>
+                    <span>할인 라벨 즉시 출력 / 관리</span>
+                </button>
+            </section>
+
+            <!-- Start Routine CTA -->
+            <a href="flow/page1" class="w-full h-14 px-5 rounded-xl flex items-center justify-between bg-[#02152f] text-white font-bold hover:bg-opacity-95 active:scale-[0.98] transition-all shadow-lg group">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[20px] text-secondary-container">play_circle</span>
+                    <span class="font-title-sm text-[15px] tracking-tight text-white font-bold">업무 루틴 시작하기</span>
+                </div>
+                <div class="flex items-center gap-1 text-secondary-container group-hover:translate-x-1 transition-transform">
+                    <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                </div>
+            </a>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center h-16 max-w-[420px] mx-auto bg-surface-container-lowest border-t border-border-subtle shadow-[0_-2px_6px_rgba(0,0,0,0.03)] px-space-xs">
+            <a class="flex flex-col items-center justify-center text-text-primary gap-0.5 w-16 py-1 active:scale-95 transition-transform" href="#">
+                <div class="relative">
+                    <span class="material-symbols-outlined text-[22px] text-text-primary" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                    <span class="absolute -top-1 -right-1 w-1.5 h-1.5 bg-secondary-fixed-dim rounded-full"></span>
+                </div>
+                <span class="text-[11px] font-bold text-text-primary">대시보드</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="#">
+                <span class="material-symbols-outlined text-[22px]">shopping_cart</span>
+                <span class="text-[11px] font-medium text-text-muted">발주</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="#">
+                <span class="material-symbols-outlined text-[22px]">inventory_2</span>
+                <span class="text-[11px] font-medium text-text-muted">재고</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="#">
+                <span class="material-symbols-outlined text-[22px]">schedule</span>
+                <span class="text-[11px] font-medium text-text-muted">폐기</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="#">
+                <span class="material-symbols-outlined text-[22px]">menu</span>
+                <span class="text-[11px] font-medium text-text-muted">더보기</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const clockElement = document.getElementById('live-clock');
+            if (clockElement) {
+                clockElement.textContent = `${hours}:${minutes}:${seconds}`;
+            }
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+
+</html>

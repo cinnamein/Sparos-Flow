@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>업무 루틴 [Step 3/4] 오늘 매장 업무 체크리스트 수정</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="shared/tailwind-config.js"></script>
+    <link rel="stylesheet" href="shared/styles.css">
+</head>
+
+<body class="bg-surface-bg text-on-surface antialiased min-h-screen flex justify-center selection:bg-secondary-container selection:text-text-primary">
+    <main class="w-full max-w-[420px] bg-surface-bg min-h-screen relative flex flex-col pb-48 shadow-xl">
+        <!-- Header -->
+        <header class="sticky top-0 z-40 flex items-center justify-between px-margin h-14 w-full bg-surface-container-lowest/95 backdrop-blur-md border-b border-border-subtle shadow-sm">
+            <div class="flex items-center gap-2 min-w-0 flex-1 mr-2">
+                <div class="w-9 h-9 rounded-xl bg-surface-muted flex items-center justify-center text-text-primary shrink-0 border border-border-subtle shadow-sm">
+                    <span class="material-symbols-outlined text-[20px]">storefront</span>
+                </div>
+                <div class="flex flex-col min-w-0 flex-1">
+                    <div class="flex items-center gap-1.5 flex-nowrap">
+                        <span class="text-[15px] font-bold text-text-primary leading-none tracking-tight truncate">CU 강남중앙</span>
+                        <span class="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[11px] font-semibold tracking-tight border border-border-subtle leading-none">#1042</span>
+                    </div>
+                    <div class="flex items-center gap-1 mt-1 leading-none">
+                        <span class="w-1.5 h-1.5 rounded-full bg-status-active animate-pulse shrink-0"></span>
+                        <span class="text-[11px] font-medium text-text-muted truncate leading-none">POS 실시간 연동 · 1분 전</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+                <button aria-label="알림" class="relative w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-muted hover:text-text-primary transition-colors active:scale-95" type="button">
+                    <span class="material-symbols-outlined text-[20px]">notifications</span>
+                    <span class="absolute top-0.5 right-0.5 w-4 h-4 bg-text-primary text-white rounded-full text-[10px] font-bold flex items-center justify-center border-2 border-white leading-none">3</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Stepper & Directive -->
+        <div class="pt-space-md px-space-lg">
+            <section class="bg-surface-container-lowest rounded-xl border border-border-subtle p-3 shadow-sm mb-3">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="font-headline-md text-headline-md text-text-primary font-bold">업무 루틴 3단계</h2>
+                </div>
+                <div class="grid grid-cols-4 gap-1.5 pt-1">
+                    <div class="flex flex-col gap-1 items-center">
+                        <div class="w-full h-1.5 bg-text-primary rounded-full"></div>
+                        <span class="text-[10px] leading-tight text-caption font-caption text-text-muted">1. 재고확인</span>
+                    </div>
+                    <div class="flex flex-col gap-1 items-center">
+                        <div class="w-full h-1.5 bg-text-primary rounded-full"></div>
+                        <span class="text-[10px] leading-tight text-caption font-caption text-text-muted">2. 발주</span>
+                    </div>
+                    <div class="flex flex-col gap-1 items-center">
+                        <div class="w-full h-1.5 bg-secondary-container rounded-full shadow-[0_0_8px_rgba(254,187,0,0.6)]"></div>
+                        <span class="text-[10px] leading-tight text-caption font-caption text-text-primary font-bold">3. 체크</span>
+                    </div>
+                    <div class="flex flex-col gap-1 items-center opacity-40">
+                        <div class="w-full h-1.5 bg-surface-container rounded-full"></div>
+                        <span class="text-[10px] leading-tight text-caption font-caption text-text-muted">4. 폐기</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Directive Banner -->
+            <section class="bg-primary-container text-on-primary rounded-xl p-space-md shadow-md mb-space-lg relative overflow-hidden">
+                <div class="relative z-10">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <p class="font-headline-md text-headline-md font-bold text-white tracking-tight">오늘 매장 업무 체크리스트 수정</p>
+                            <p class="text-caption font-caption text-inverse-primary mt-0.5 leading-snug">근무조별 필수 업무를 확인하고 수정 및 직접 할당하세요.</p>
+                        </div>
+                        <span class="material-symbols-outlined text-secondary-container text-2xl">edit_note</span>
+                    </div>
+                    <div class="mt-3 pt-2.5 border-t border-inverse-surface/80 flex items-center justify-between text-caption font-caption">
+                        <div class="w-full flex flex-col gap-1.5">
+                            <div class="flex items-center justify-between text-caption font-caption">
+                                <span class="text-inverse-primary font-medium flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[13px] text-secondary-container">schedule</span>
+                                    근무자 배정 설정
+                                </span>
+                                <button class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-secondary-container text-on-primary-fixed hover:opacity-95 active:scale-95 transition-all flex items-center gap-0.5 shadow-sm" type="button">
+                                    설정 저장 <span class="material-symbols-outlined text-[13px]">check</span>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 mt-0.5">
+                                <div class="flex flex-col gap-0.5">
+                                    <label class="text-[10px] text-inverse-primary/80 font-caption">근무 시간대</label>
+                                    <select class="w-full text-[11px] font-mono-data bg-surface-container-high/20 text-white rounded border border-inverse-primary/30 px-2 py-1 focus:outline-none focus:border-secondary-container focus:ring-1 focus:ring-secondary-container">
+                                        <option class="text-text-primary bg-white" selected>09:00 ~ 15:00 (오전)</option>
+                                        <option class="text-text-primary bg-white">15:00 ~ 22:00 (오후)</option>
+                                        <option class="text-text-primary bg-white">22:00 ~ 익일 09:00 (야간)</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col gap-0.5">
+                                    <label class="text-[10px] text-inverse-primary/80 font-caption">담당 근무자</label>
+                                    <select class="w-full text-[11px] font-mono-data bg-surface-container-high/20 text-white rounded border border-inverse-primary/30 px-2 py-1 focus:outline-none focus:border-secondary-container focus:ring-1 focus:ring-secondary-container">
+                                        <option class="text-text-primary bg-white" selected>김알바</option>
+                                        <option class="text-text-primary bg-white">박근무</option>
+                                        <option class="text-text-primary bg-white">이점장</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Checklist -->
+        <div class="px-space-lg flex flex-col gap-space-lg">
+            <div class="flex items-center justify-between">
+                <h2 class="font-title-sm text-title-sm text-text-primary flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-secondary font-bold text-lg">checklist</span>
+                    현장 실행 목록 (총 4건)
+                </h2>
+                <span class="font-caption text-caption text-text-muted">우선순위 정렬됨</span>
+            </div>
+
+            <!-- Task 1: 온·습도 기록 -->
+            <article class="bg-surface-container-lowest rounded-xl border border-border-subtle p-space-md shadow-sm border-l-4 border-l-secondary-container hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between gap-2">
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-mono-data text-[12px] font-bold text-text-primary flex items-center gap-1 bg-surface-muted px-2 py-0.5 rounded border border-border-subtle">
+                            <span class="material-symbols-outlined text-[13px] text-secondary">schedule</span>
+                            09:30
+                        </span>
+                    </div>
+                    <button aria-label="업무 상세 수정" class="w-6 h-6 flex items-center justify-center rounded hover:bg-surface-muted text-outline active:scale-95 transition-transform" type="button">
+                        <span class="material-symbols-outlined text-[17px]">edit</span>
+                    </button>
+                </div>
+                <p class="font-body-md text-body-md text-text-primary mt-1.5">매장 온·습도 및 냉장 쇼케이스 온도 기록</p>
+                <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between bg-surface-muted/60 p-2 rounded-lg">
+                    <div class="flex items-center gap-1.5 text-caption font-caption text-on-surface-variant">
+                        <span class="material-symbols-outlined text-[15px] text-text-muted">person</span>
+                        <span>담당자:</span>
+                        <span class="font-bold text-text-primary">김알바 (오전)</span>
+                    </div>
+                    <button class="px-3 py-1.5 rounded-lg text-[12px] font-bold border border-slate-300 bg-white hover:bg-slate-50 text-text-primary shadow-sm active:scale-95 transition-transform" type="button">할당 변경</button>
+                </div>
+            </article>
+
+            <!-- Task 2: 입고 검수 -->
+            <article class="bg-surface-container-lowest rounded-xl border border-border-subtle p-space-md shadow-sm border-l-4 border-l-text-primary hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between gap-2">
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-mono-data text-[12px] font-bold text-text-primary flex items-center gap-1 bg-surface-muted px-2 py-0.5 rounded border border-border-subtle">
+                            <span class="material-symbols-outlined text-[13px] text-text-primary">schedule</span>
+                            11:00
+                        </span>
+                    </div>
+                    <button aria-label="업무 상세 수정" class="w-6 h-6 flex items-center justify-center rounded hover:bg-surface-muted text-outline active:scale-95 transition-transform" type="button">
+                        <span class="material-symbols-outlined text-[17px]">edit</span>
+                    </button>
+                </div>
+                <p class="font-body-md text-body-md text-text-primary mt-1.5">1차 물류 배송 입고 검수 및 진열</p>
+                <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between bg-surface-muted/60 p-2 rounded-lg">
+                    <div class="flex items-center gap-1.5 text-caption font-caption text-on-surface-variant">
+                        <span class="material-symbols-outlined text-[15px] text-text-muted">person</span>
+                        <span>담당자:</span>
+                        <span class="font-bold text-text-primary">김알바 &amp; 점장 (공동)</span>
+                    </div>
+                    <button class="px-3 py-1.5 rounded-lg text-[12px] font-bold border border-slate-300 bg-white hover:bg-slate-50 text-text-primary shadow-sm active:scale-95 transition-transform" type="button">할당 변경</button>
+                </div>
+            </article>
+
+            <!-- Task 3: 매장 정돈 (Checkbox) -->
+            <article class="bg-surface-container-lowest rounded-xl border border-border-subtle p-space-md shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <input class="w-4 h-4 rounded text-primary focus:ring-secondary-container border-slate-300 accent-text-primary" id="task-clean" type="checkbox">
+                        <label class="font-body-md text-body-md text-text-primary block cursor-pointer" for="task-clean">
+                            출입구 매트 정돈 및 테라스 테이블 청결 점검
+                        </label>
+                    </div>
+                    <button aria-label="업무 상세 수정" class="w-6 h-6 flex items-center justify-center rounded hover:bg-surface-muted text-outline active:scale-95 transition-transform" type="button">
+                        <span class="material-symbols-outlined text-[17px]">edit</span>
+                    </button>
+                </div>
+                <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between bg-surface-muted/60 p-2 rounded-lg">
+                    <div class="flex items-center gap-1.5 text-caption font-caption text-on-surface-variant">
+                        <span class="material-symbols-outlined text-[15px] text-text-muted">person</span>
+                        <span>담당자:</span>
+                        <span class="font-bold text-text-primary">박근무 (오후)</span>
+                    </div>
+                    <button class="px-3 py-1.5 rounded-lg text-[12px] font-bold border border-slate-300 bg-white hover:bg-slate-50 text-text-primary shadow-sm active:scale-95 transition-transform" type="button">할당 변경</button>
+                </div>
+            </article>
+
+            <!-- Add Custom Task -->
+            <section class="bg-surface-muted rounded-xl border border-dashed border-outline-variant p-space-md">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="font-headline-md text-headline-md text-text-primary flex items-center gap-1">
+                        <span class="material-symbols-outlined text-secondary text-sm">add_task</span>
+                        새 업무 추가
+                    </span>
+                    <span class="font-caption text-caption text-text-muted">점장 특별 지시사항</span>
+                </div>
+                <div class="space-y-2">
+                    <input class="w-full text-body-sm font-body-sm bg-white rounded-lg border border-slate-300 px-3 py-2 text-text-primary placeholder:text-outline focus:outline-none focus:border-text-primary focus:ring-1 focus:ring-text-primary"
+                        placeholder="예: 삼각김밥 매대 POP 교체 건" type="text">
+                    <div class="flex items-center gap-2">
+                        <select aria-label="담당자 지정" class="flex-1 h-10 text-body-sm font-body-sm bg-white rounded-lg border border-slate-300 px-3 text-text-primary focus:outline-none focus:border-text-primary">
+                            <option>담당: 오전조 (김알바)</option>
+                            <option>담당: 오후조 (박근무)</option>
+                            <option>담당: 전체 공통</option>
+                        </select>
+                        <button class="h-10 px-4 bg-text-primary text-white text-body-sm font-body-sm font-bold rounded-lg active:scale-95 transition-transform inline-flex items-center justify-center gap-1 shadow-sm hover:opacity-95" type="button">
+                            <span class="material-symbols-outlined text-[15px] leading-none">add</span>
+                            등록
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sync Status -->
+            <section class="bg-surface-container-lowest rounded-xl border border-border-subtle p-3 text-caption font-caption flex items-center justify-between">
+                <div class="flex items-center gap-2 text-text-muted">
+                    <span class="material-symbols-outlined text-secondary">info</span>
+                    <span>체크리스트 수정 내역은 실시간 앱 동기화됩니다.</span>
+                </div>
+                <span class="font-mono-data text-status-active font-bold">동기화 완료</span>
+            </section>
+        </div>
+
+        <!-- Bottom CTA -->
+        <div class="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
+            <div class="w-full max-w-[420px] bg-surface-container-lowest/95 backdrop-blur-md border-t border-border-subtle p-margin shadow-2xl pointer-events-auto flex flex-col gap-2">
+                <a href="page4" class="w-full h-14 px-5 rounded-xl flex items-center justify-center gap-1.5 bg-surface-muted border border-border-subtle text-text-muted font-body-md text-body-md hover:bg-surface-container-high hover:text-text-primary active:scale-[0.98] transition-all">
+                    <span>체크리스트 단계 건너뛰기</span>
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                </a>
+                <a href="page4" class="w-full h-14 px-5 rounded-xl flex items-center justify-between bg-[#02152f] text-white font-bold hover:bg-opacity-95 active:scale-[0.98] transition-all shadow-lg group">
+                    <span class="font-title-sm text-[15px] tracking-tight text-white font-bold">체크리스트 저장하고 다음 단계로</span>
+                    <div class="flex items-center gap-1 text-secondary-container group-hover:translate-x-1 transition-transform">
+                        <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
