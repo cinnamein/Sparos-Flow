@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const API = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000") + "/api/v1";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -18,7 +19,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/v1/account/login", {
+      const res = await fetch(`${API}/account/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ employee_id: employeeId, password }),
