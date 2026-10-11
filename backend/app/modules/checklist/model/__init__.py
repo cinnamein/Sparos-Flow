@@ -5,10 +5,10 @@ from app.core.database import Base
 
 
 class Schedule(Base):
-    __tablename__ = "schedule"
+    __tablename__ = "schedules"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("user.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id"), nullable=False)
     work_date: Mapped[str] = mapped_column(Date, nullable=False)
     start_time: Mapped[str] = mapped_column(Time, nullable=False)
     end_time: Mapped[str] = mapped_column(Time, nullable=False)

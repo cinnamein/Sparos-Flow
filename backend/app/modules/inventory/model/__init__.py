@@ -5,7 +5,7 @@ from app.core.database import Base
 
 
 class Product(Base):
-    __tablename__ = "product"
+    __tablename__ = "products"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     barcode: Mapped[str] = mapped_column(String(13), unique=True, nullable=False)
