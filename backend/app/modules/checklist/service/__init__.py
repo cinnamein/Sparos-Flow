@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import select, update, insert
+from sqlalchemy import select, update, insert, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -55,3 +55,13 @@ async def create_checklist(
     row = result.scalars().one()
     await db.refresh(row, ["assigned_user"])
     return row
+
+
+async def delete_checklist(db: AsyncSession, store_id: int, checklist_id: int) -> bool:
+    result = await db.execute(
+        delete(Checklist).where(
+            Checklist.id == checklist_id, Checklist.store_id == store_id
+        )
+    )
+    await db.commit()
+    return result.rowcount > 0

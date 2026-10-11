@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.security.auth import get_current_user
 from app.modules.checklist.schema import ChecklistItem, ChecklistCreateRequest, ChecklistUpdateRequest
-from app.modules.checklist.service import get_checklists_by_store_and_date, bulk_update_completion, create_checklist
+from app.modules.checklist.service import get_checklists_by_store_and_date, bulk_update_completion, create_checklist, delete_checklist
 
 router = APIRouter(prefix="/checklist", tags=["체크리스트"])
 
@@ -60,4 +60,15 @@ async def update_checklists(
 ):
     store_id = int(user["tenant_id"])
     await bulk_update_completion(db, store_id, body.items)
+    return {"status": "ok"}
+
+
+@router.delete("/{checklist_id}")
+async def remove_checklist(
+    checklist_id: int,
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    store_id = int(user["tenant_id"])
+    await delete_checklist(db, store_id, checklist_id)
     return {"status": "ok"}

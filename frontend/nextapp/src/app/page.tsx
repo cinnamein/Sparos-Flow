@@ -42,6 +42,7 @@ export default function DashboardPage() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [adding, setAdding] = useState(false);
+  const [deleting, setDeleting] = useState<number | null>(null);
 
   const fetchChecklists = useCallback(async () => {
     if (!token) return;
@@ -102,6 +103,31 @@ export default function DashboardPage() {
     }
     setAdding(false);
   };
+
+  const deleteChecklist = async (id: number) => {
+    if (!token) return;
+    setDeleting(id);
+    const res = await fetch(`${API}/checklist/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      setChecklists((prev) => prev.filter((c) => c.id !== id));
+      setLocalChecks((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+    }
+    setDeleting(null);
+  };
+
+  const sortedChecklists = [...checklists].sort((a, b) => {
+    const aChecked = localChecks[a.id] ?? a.is_completed;
+    const bChecked = localChecks[b.id] ?? b.is_completed;
+    if (aChecked !== bChecked) return aChecked ? 1 : -1;
+    return 0;
+  });
 
   const completedCount = Object.values(localChecks).filter(Boolean).length;
   const totalCount = checklists.length;
@@ -218,24 +244,22 @@ export default function DashboardPage() {
                 <span className="material-symbols-outlined text-[18px] text-[var(--color-text-primary)]">checklist</span>
                 <h2 className="font-hanken text-[14px] leading-[18px] font-bold text-[var(--color-text-primary)]">당일 업무 체크리스트</h2>
               </div>
-              {dirty && (
-                <button
-                  onClick={saveChecklists}
-                  disabled={saving}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--color-text-primary)] text-white text-[11px] font-bold font-hanken active:scale-95 transition-transform disabled:opacity-50"
-                >
-                  <span className="material-symbols-outlined text-[14px]">save</span>
-                  {saving ? "저장 중..." : "저장"}
-                </button>
-              )}
+              <button
+                onClick={saveChecklists}
+                disabled={!dirty || saving}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--color-text-primary)] text-white text-[11px] font-bold font-hanken active:scale-95 transition-transform disabled:opacity-40"
+              >
+                <span className="material-symbols-outlined text-[14px]">save</span>
+                {saving ? "저장 중..." : "저장"}
+              </button>
             </div>
             <div className="space-y-1.5">
-              {checklists.map((item) => {
+              {sortedChecklists.map((item) => {
                 const checked = localChecks[item.id] ?? item.is_completed;
                 return (
-                  <label
+                  <div
                     key={item.id}
-                    className={`flex items-start gap-2.5 p-2 rounded-lg cursor-pointer transition-colors ${
+                    className={`flex items-start gap-2.5 p-2 rounded-lg transition-colors ${
                       checked
                         ? "bg-[var(--color-surface-muted)]/60 border border-[var(--color-border-subtle)]"
                         : "bg-[var(--color-surface-container-lowest)] border border-[var(--color-border-subtle)] hover:bg-[var(--color-surface-muted)]"
@@ -252,17 +276,26 @@ export default function DashboardPage() {
                         <span className={`font-hanken text-xs font-semibold truncate ${checked ? "text-[var(--color-text-muted)] line-through" : "text-[var(--color-text-primary)]"}`}>
                           {item.title}
                         </span>
-                        {item.due_time && (
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded shrink-0 ml-2 ${checked ? "bg-slate-200 text-[var(--color-text-muted)]" : "bg-[var(--color-surface-muted)] text-[var(--color-text-muted)]"}`}>
-                            {item.due_time.slice(0, 5)}
-                          </span>
-                        )}
+                        <div className="flex items-center gap-1 shrink-0 ml-2">
+                          {item.due_time && (
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${checked ? "bg-slate-200 text-[var(--color-text-muted)]" : "bg-[var(--color-surface-muted)] text-[var(--color-text-muted)]"}`}>
+                              {item.due_time.slice(0, 5)}
+                            </span>
+                          )}
+                          <button
+                            onClick={() => deleteChecklist(item.id)}
+                            disabled={deleting === item.id}
+                            className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-100 text-[var(--color-text-muted)] hover:text-red-500 transition-colors disabled:opacity-40"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">close</span>
+                          </button>
+                        </div>
                       </div>
                       {item.assigned_user_name && (
                         <p className="font-hanken text-[11px] text-[var(--color-text-muted)] mt-0.5">담당: {item.assigned_user_name}</p>
                       )}
                     </div>
-                  </label>
+                  </div>
                 );
               })}
               {checklists.length === 0 && (
