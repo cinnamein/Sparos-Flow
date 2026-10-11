@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "spharos FLOW - 매장 운영 시스템",
@@ -27,7 +28,9 @@ export default function RootLayout({
       </head>
       <body className="bg-[var(--color-surface-bg)] text-[var(--color-on-surface)] antialiased min-h-screen flex justify-center selection:bg-[var(--color-secondary-container)] selection:text-[var(--color-text-primary)]">
         <div className="w-full max-w-[420px] bg-[var(--color-surface-bg)] flex flex-col min-h-screen relative shadow-xl">
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </div>
       </body>
     </html>

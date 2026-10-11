@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/lib/auth";
 
 function LiveClock() {
   const [time, setTime] = useState("");
@@ -22,6 +23,8 @@ function LiveClock() {
 }
 
 export default function DashboardPage() {
+  const { user, logout } = useAuth();
+
   return (
     <>
       {/* Header */}
@@ -29,7 +32,7 @@ export default function DashboardPage() {
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 bg-[var(--color-surface-muted)] px-2 py-0.5 rounded-full border border-[var(--color-border-subtle)]">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-status-active)] animate-pulse" />
-            <span className="font-hanken text-[11px] leading-[14px] font-semibold text-[var(--color-text-primary)]">CU 강남중앙점</span>
+            <span className="font-hanken text-[11px] leading-[14px] font-semibold text-[var(--color-text-primary)]">{user?.store_name ?? ""}</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -40,6 +43,9 @@ export default function DashboardPage() {
           <button aria-label="알림" className="relative w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[var(--color-surface-muted)] text-[var(--color-on-surface)] active:scale-95 transition-transform" type="button">
             <span className="material-symbols-outlined text-[20px]">notifications</span>
             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[var(--color-alert-critical)] ring-2 ring-white" />
+          </button>
+          <button aria-label="로그아웃" onClick={logout} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[var(--color-surface-muted)] text-[var(--color-on-surface)] active:scale-95 transition-transform" type="button">
+            <span className="material-symbols-outlined text-[20px]">logout</span>
           </button>
         </div>
       </header>
@@ -53,7 +59,7 @@ export default function DashboardPage() {
               <span className="material-symbols-outlined text-[22px]">badge</span>
             </div>
             <div>
-              <h1 className="font-hanken text-[15px] leading-[20px] font-bold text-[var(--color-text-primary)]">좋은 하루입니다, 김알바님!</h1>
+              <h1 className="font-hanken text-[15px] leading-[20px] font-bold text-[var(--color-text-primary)]">좋은 하루입니다, {user?.name ?? ""}님!</h1>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[var(--color-secondary-fixed-dim)]/20 text-[var(--color-on-secondary-fixed-variant)] border border-[var(--color-secondary-fixed-dim)]/40 font-hanken">근무중</span>
                 <span className="font-hanken text-[11px] leading-[14px] font-medium text-[var(--color-text-muted)]">오전 시프트 (08:00 ~ 14:00)</span>

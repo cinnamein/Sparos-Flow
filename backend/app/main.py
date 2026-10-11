@@ -4,6 +4,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
+import app.modules.account.model  # noqa: F401
+import app.modules.checklist.model  # noqa: F401
+import app.modules.inventory.model  # noqa: F401
 from app.modules.order.router import router as order_router
 from app.modules.inventory.router import router as inventory_router
 from app.modules.expiry.router import router as expiry_router
