@@ -180,7 +180,7 @@
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center justify-between">
                                     <span class="font-body-md text-xs font-bold text-text-primary truncate">신선식품(FF) 라스트픽 마감할인 라벨 부착</span>
-                                    <span class="font-badge-sm text-[10px] px-1.5 py-0.5 rounded bg-secondary-fixed-dim text-on-secondary-fixed font-bold">10:00 마감</span>
+                                    <span class="font-badge-sm text-[10px] px-1.5 py-0.5 rounded bg-secondary-fixed-dim text-on-secondary-fixed font-bold">10:00</span>
                                 </div>
                                 <p class="font-caption text-[11px] text-on-secondary-fixed-variant mt-0.5 font-medium">도시락, 샌드위치 3종 즉시 바코드 부착 필요</p>
                             </div>
