@@ -1,8 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth";
+
+const API = "http://localhost:8000/api/v1";
+
+interface ChecklistItem {
+  id: number;
+  title: string;
+  work_date: string;
+  due_time: string | null;
+  is_completed: boolean;
+  assigned_user_name: string | null;
+}
 
 function LiveClock() {
   const [time, setTime] = useState("");
@@ -23,7 +34,78 @@ function LiveClock() {
 }
 
 export default function DashboardPage() {
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
+  const [checklists, setChecklists] = useState<ChecklistItem[]>([]);
+  const [localChecks, setLocalChecks] = useState<Record<number, boolean>>({});
+  const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [adding, setAdding] = useState(false);
+
+  const fetchChecklists = useCallback(async () => {
+    if (!token) return;
+    const today = new Date().toISOString().split("T")[0];
+    const res = await fetch(`${API}/checklist/?work_date=${today}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      const data: ChecklistItem[] = await res.json();
+      setChecklists(data);
+      const checks: Record<number, boolean> = {};
+      data.forEach((c) => (checks[c.id] = c.is_completed));
+      setLocalChecks(checks);
+      setDirty(false);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    fetchChecklists();
+  }, [fetchChecklists]);
+
+  const toggleCheck = (id: number) => {
+    setLocalChecks((prev) => ({ ...prev, [id]: !prev[id] }));
+    setDirty(true);
+  };
+
+  const saveChecklists = async () => {
+    if (!token) return;
+    setSaving(true);
+    const items = Object.entries(localChecks).map(([id, is_completed]) => ({
+      id: Number(id),
+      is_completed,
+    }));
+    await fetch(`${API}/checklist/`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ items }),
+    });
+    setDirty(false);
+    setSaving(false);
+  };
+
+  const addChecklist = async () => {
+    if (!token || !newTitle.trim()) return;
+    setAdding(true);
+    const today = new Date().toISOString().split("T")[0];
+    const res = await fetch(`${API}/checklist/`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ title: newTitle.trim(), work_date: today }),
+    });
+    if (res.ok) {
+      const created: ChecklistItem = await res.json();
+      setChecklists((prev) => [...prev, created]);
+      setLocalChecks((prev) => ({ ...prev, [created.id]: false }));
+      setNewTitle("");
+      setShowAddForm(false);
+    }
+    setAdding(false);
+  };
+
+  const completedCount = Object.values(localChecks).filter(Boolean).length;
+  const totalCount = checklists.length;
+  const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   return (
     <>
@@ -104,28 +186,20 @@ export default function DashboardPage() {
           <div className="space-y-2.5">
             <div className="flex items-center justify-between">
               <div className="flex items-baseline gap-1.5">
-                <span className="font-hanken text-[15px] leading-[20px] font-bold text-[var(--color-text-primary)]">오전 업무 완수율</span>
-                <span className="font-jetbrains text-[18px] leading-[22px] font-bold text-[var(--color-text-primary)]">75%</span>
-              </div>
-              <div className="text-right">
-                <div className="text-[11px] text-[var(--color-on-surface-variant)] font-medium">근무 마감까지</div>
-                <div className="flex items-center justify-end gap-1 text-[13px] font-bold text-[var(--color-secondary)]">
-                  <span className="material-symbols-outlined text-[14px]">timer</span>
-                  <span>잔여 2시간 30분</span>
-                  <span className="text-[10px] text-[var(--color-on-surface-variant)] font-normal">(14:00)</span>
-                </div>
+                <span className="font-hanken text-[15px] leading-[20px] font-bold text-[var(--color-text-primary)]">업무 완수율</span>
+                <span className="font-jetbrains text-[18px] leading-[22px] font-bold text-[var(--color-text-primary)]">{percent}%</span>
               </div>
             </div>
             <div className="w-full bg-[var(--color-surface-muted)] h-2.5 rounded-full overflow-hidden p-0.5 border border-[var(--color-border-subtle)]">
-              <div className="bg-gradient-to-r from-[var(--color-text-primary)] via-[var(--color-text-primary)] to-[var(--color-secondary-fixed-dim)] h-full rounded-full transition-all duration-500 relative" style={{ width: "75%" }}>
+              <div className="bg-gradient-to-r from-[var(--color-text-primary)] via-[var(--color-text-primary)] to-[var(--color-secondary-fixed-dim)] h-full rounded-full transition-all duration-500 relative" style={{ width: `${percent}%` }}>
                 <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-white shadow-sm" />
               </div>
             </div>
             <div className="grid grid-cols-3 gap-2 pt-1 border-t border-[var(--color-border-subtle)]">
               {[
-                { label: "완료 건수", value: "3건", color: "text-[var(--color-text-primary)]" },
-                { label: "잔여 과업", value: "1건", color: "text-[var(--color-secondary)]" },
-                { label: "전체 업무", value: "4건", color: "text-[var(--color-text-muted)]" },
+                { label: "완료 건수", value: `${completedCount}건`, color: "text-[var(--color-text-primary)]" },
+                { label: "잔여 과업", value: `${totalCount - completedCount}건`, color: "text-[var(--color-secondary)]" },
+                { label: "전체 업무", value: `${totalCount}건`, color: "text-[var(--color-text-muted)]" },
               ].map((stat) => (
                 <div key={stat.label} className="bg-[var(--color-surface-muted)] rounded-lg p-2 text-center">
                   <span className="font-hanken text-[11px] text-[var(--color-text-muted)] block">{stat.label}</span>
@@ -144,47 +218,91 @@ export default function DashboardPage() {
                 <span className="material-symbols-outlined text-[18px] text-[var(--color-text-primary)]">checklist</span>
                 <h2 className="font-hanken text-[14px] leading-[18px] font-bold text-[var(--color-text-primary)]">당일 업무 체크리스트</h2>
               </div>
+              {dirty && (
+                <button
+                  onClick={saveChecklists}
+                  disabled={saving}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--color-text-primary)] text-white text-[11px] font-bold font-hanken active:scale-95 transition-transform disabled:opacity-50"
+                >
+                  <span className="material-symbols-outlined text-[14px]">save</span>
+                  {saving ? "저장 중..." : "저장"}
+                </button>
+              )}
             </div>
             <div className="space-y-1.5">
-              <label className="flex items-start gap-2.5 p-2 rounded-lg bg-[var(--color-alert-warning-bg)]/60 border-l-4 border-[var(--color-secondary-fixed-dim)] border-t border-r border-b border-[var(--color-border-subtle)] cursor-pointer shadow-sm">
-                <input className="mt-0.5 rounded accent-[var(--color-text-primary)] w-4 h-4 cursor-pointer" type="checkbox" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-hanken text-xs font-bold text-[var(--color-text-primary)] truncate">신선식품(FF) 라스트픽 마감할인 라벨 부착</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-secondary-fixed-dim)] text-[var(--color-on-secondary-fixed)] font-bold">10:00 마감</span>
-                  </div>
-                  <p className="font-hanken text-[11px] text-[var(--color-on-secondary-fixed-variant)] mt-0.5 font-medium">도시락, 샌드위치 3종 즉시 바코드 부착 필요</p>
-                </div>
-              </label>
-              <label className="flex items-start gap-2.5 p-2 rounded-lg bg-[var(--color-surface-container-lowest)] border border-[var(--color-border-subtle)] cursor-pointer hover:bg-[var(--color-surface-muted)] transition-colors">
-                <input className="mt-0.5 rounded accent-[var(--color-text-primary)] w-4 h-4 cursor-pointer" type="checkbox" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-hanken text-xs font-semibold text-[var(--color-text-primary)] truncate">담배 시재 및 금고 점검</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-surface-muted)] text-[var(--color-text-muted)]">13:30</span>
-                  </div>
-                  <p className="font-hanken text-[11px] text-[var(--color-text-muted)] mt-0.5">오후 교대 근무자 인수인계 전 시재 확인</p>
-                </div>
-              </label>
-              <label className="flex items-start gap-2.5 p-2 rounded-lg bg-[var(--color-surface-muted)]/60 border border-[var(--color-border-subtle)] cursor-pointer">
-                <input defaultChecked className="mt-0.5 rounded accent-[var(--color-text-primary)] w-4 h-4 cursor-pointer" type="checkbox" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-hanken text-xs font-semibold text-[var(--color-text-muted)] line-through truncate">오전 1차 소비기한 점검 &amp; 폐기 등록</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-[var(--color-text-muted)]">08:45</span>
-                  </div>
-                </div>
-              </label>
-              <label className="flex items-start gap-2.5 p-2 rounded-lg bg-[var(--color-surface-muted)]/60 border border-[var(--color-border-subtle)] cursor-pointer">
-                <input defaultChecked className="mt-0.5 rounded accent-[var(--color-text-primary)] w-4 h-4 cursor-pointer" type="checkbox" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-hanken text-xs font-semibold text-[var(--color-text-muted)] line-through truncate">워크인 쿨러 음료 전면 보충 진열</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-[var(--color-text-muted)]">09:15</span>
-                  </div>
-                </div>
-              </label>
+              {checklists.map((item) => {
+                const checked = localChecks[item.id] ?? item.is_completed;
+                return (
+                  <label
+                    key={item.id}
+                    className={`flex items-start gap-2.5 p-2 rounded-lg cursor-pointer transition-colors ${
+                      checked
+                        ? "bg-[var(--color-surface-muted)]/60 border border-[var(--color-border-subtle)]"
+                        : "bg-[var(--color-surface-container-lowest)] border border-[var(--color-border-subtle)] hover:bg-[var(--color-surface-muted)]"
+                    }`}
+                  >
+                    <input
+                      checked={checked}
+                      onChange={() => toggleCheck(item.id)}
+                      className="mt-0.5 rounded accent-[var(--color-text-primary)] w-4 h-4 cursor-pointer"
+                      type="checkbox"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className={`font-hanken text-xs font-semibold truncate ${checked ? "text-[var(--color-text-muted)] line-through" : "text-[var(--color-text-primary)]"}`}>
+                          {item.title}
+                        </span>
+                        {item.due_time && (
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded shrink-0 ml-2 ${checked ? "bg-slate-200 text-[var(--color-text-muted)]" : "bg-[var(--color-surface-muted)] text-[var(--color-text-muted)]"}`}>
+                            {item.due_time.slice(0, 5)}
+                          </span>
+                        )}
+                      </div>
+                      {item.assigned_user_name && (
+                        <p className="font-hanken text-[11px] text-[var(--color-text-muted)] mt-0.5">담당: {item.assigned_user_name}</p>
+                      )}
+                    </div>
+                  </label>
+                );
+              })}
+              {checklists.length === 0 && (
+                <p className="text-center text-[var(--color-text-muted)] text-xs py-4">아직 업무가 없습니다.</p>
+              )}
             </div>
+
+            {showAddForm ? (
+              <div className="flex items-center gap-1.5 pt-1">
+                <input
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addChecklist()}
+                  placeholder="업무 제목 입력"
+                  autoFocus
+                  className="flex-1 px-2.5 py-1.5 text-xs font-hanken bg-[var(--color-surface-muted)] rounded-lg border border-[var(--color-border-subtle)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:ring-1 focus:ring-[var(--color-secondary-fixed-dim)] focus:border-[var(--color-secondary-fixed-dim)] outline-none"
+                />
+                <button
+                  onClick={addChecklist}
+                  disabled={adding || !newTitle.trim()}
+                  className="px-2.5 py-1.5 rounded-lg bg-[var(--color-text-primary)] text-white text-[11px] font-bold font-hanken active:scale-95 transition-transform disabled:opacity-50"
+                >
+                  {adding ? "추가 중..." : "추가"}
+                </button>
+                <button
+                  onClick={() => { setShowAddForm(false); setNewTitle(""); }}
+                  className="px-2 py-1.5 rounded-lg text-[var(--color-text-muted)] text-[11px] font-hanken hover:bg-[var(--color-surface-muted)]"
+                >
+                  취소
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="w-full flex items-center justify-center gap-1 py-2 rounded-lg border border-dashed border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text-primary)] transition-colors"
+              >
+                <span className="material-symbols-outlined text-[16px]">add</span>
+                <span className="font-hanken text-xs font-medium">업무 추가</span>
+              </button>
+            )}
           </div>
         </section>
 

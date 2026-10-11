@@ -79,6 +79,17 @@ INSERT INTO schedules (user_id, work_date, start_time, end_time) VALUES
     (1, '2026-10-18', '15:00', '23:00'),
     (2, '2026-10-18', '23:00', '07:00');
 
+-- 체크리스트
+CREATE TABLE checklists (
+    id BIGSERIAL PRIMARY KEY,
+    store_id BIGINT NOT NULL REFERENCES stores(id),
+    assigned_user_id BIGINT REFERENCES users(id),
+    title VARCHAR(200) NOT NULL,
+    work_date DATE NOT NULL,
+    due_time TIME,
+    is_completed BOOLEAN NOT NULL DEFAULT FALSE
+);
+
 -- 상품
 INSERT INTO products (barcode, name, price) VALUES
     ('8801234560010', '신라면 컵',         1500),
@@ -91,3 +102,15 @@ INSERT INTO products (barcode, name, price) VALUES
     ('8801234560089', '샌드위치 햄치즈',    3200),
     ('8801234560096', '바나나우유 240ml',   1500),
     ('8801234560102', '핫바 오리지널',      2000);
+
+-- 체크리스트 (스파로스점 10/12 기준)
+-- 이직원(2): 오전 07~15 / 박직원(3): 오후 15~23 / 김점장(1): 야간 23~07
+INSERT INTO checklists (store_id, assigned_user_id, title, work_date, due_time, is_completed) VALUES
+    (1, 2, '오전 소비기한 점검 및 폐기 등록',      '2026-10-12', '08:30', TRUE),
+    (1, 2, '워크인 쿨러 음료 전면 보충',           '2026-10-12', '09:00', TRUE),
+    (1, 2, '신선식품 마감할인 라벨 부착',           '2026-10-12', '10:00', FALSE),
+    (1, 2, '담배 시재 및 금고 점검 (교대 전)',       '2026-10-12', '14:30', FALSE),
+    (1, 3, '오후 물류 입고 검수 및 진열',           '2026-10-12', '16:00', FALSE),
+    (1, 3, '매장 온·습도 및 냉장 쇼케이스 온도 기록', '2026-10-12', '17:00', FALSE),
+    (1, 3, '2차 소비기한 점검',                    '2026-10-12', '20:00', FALSE),
+    (1, 3, '담배 시재 및 금고 점검 (교대 전)',       '2026-10-12', '22:30', FALSE);
