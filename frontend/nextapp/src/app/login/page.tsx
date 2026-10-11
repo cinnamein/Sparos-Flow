@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export default function LoginPage() {
   const { login } = useAuth();
   const [employeeId, setEmployeeId] = useState("");
@@ -46,7 +48,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm space-y-10">
         {/* Logo */}
         <div className="text-center space-y-2">
-          <img src="/images/logo.png" alt="FLOW 로고" className="w-48 h-48 mx-auto object-contain" />
+          <img src={`${BASE_PATH}/images/logo.png`} alt="FLOW 로고" className="w-48 h-48 mx-auto object-contain" />
           <p className="text-[13px] text-[var(--color-text-muted)] font-medium">매장 운영 시스템</p>
         </div>
 
