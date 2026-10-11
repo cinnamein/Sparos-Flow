@@ -134,3 +134,29 @@ INSERT INTO checklists (store_id, assigned_user_id, title, work_date, due_time, 
     (1, 3, '매장 온·습도 및 냉장 쇼케이스 온도 기록', '2026-10-14', '17:00', FALSE),
     (1, 3, '2차 소비기한 점검',                    '2026-10-14', '20:00', FALSE),
     (1, 3, '담배 시재 및 금고 점검 (교대 전)',       '2026-10-14', '22:30', FALSE);
+
+-- 소비기한 현황
+CREATE TABLE expiry_items (
+    id BIGSERIAL PRIMARY KEY,
+    store_id BIGINT NOT NULL REFERENCES stores(id),
+    product_name VARCHAR(200) NOT NULL,
+    expiry_date DATE NOT NULL,
+    expiry_time TIME NOT NULL,
+    quantity INT NOT NULL
+);
+
+INSERT INTO expiry_items (store_id, product_name, expiry_date, expiry_time, quantity) VALUES
+    -- 스파로스점 10/12
+    (1, '참치마요 삼각김밥 105g',   '2026-10-12', '11:00', 2),
+    (1, '에그 샌드위치 180g',       '2026-10-12', '12:00', 1),
+    (1, '바나나우유 240ml',         '2026-10-12', '23:59', 4),
+    (1, '햄치즈 샌드위치 150g',     '2026-10-12', '14:00', 3),
+    -- 스파로스점 10/13
+    (1, '불고기 삼각김밥 100g',     '2026-10-13', '10:30', 3),
+    (1, '도시락 김치찌개',          '2026-10-13', '13:00', 2),
+    (1, '서울우유 1L',              '2026-10-13', '23:59', 5),
+    (1, '에그 샌드위치 180g',       '2026-10-13', '11:00', 1),
+    -- 스파로스점 10/14
+    (1, '참치마요 삼각김밥 105g',   '2026-10-14', '09:00', 4),
+    (1, '바나나우유 240ml',         '2026-10-14', '23:59', 2),
+    (1, '햄치즈 샌드위치 150g',     '2026-10-14', '15:00', 2);

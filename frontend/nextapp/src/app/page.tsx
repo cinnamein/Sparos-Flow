@@ -15,6 +15,14 @@ interface ChecklistItem {
   assigned_user_name: string | null;
 }
 
+interface ExpiryItem {
+  id: number;
+  product_name: string;
+  expiry_date: string;
+  expiry_time: string;
+  quantity: number;
+}
+
 function LiveClock() {
   const [time, setTime] = useState("");
 
@@ -43,6 +51,7 @@ export default function DashboardPage() {
   const [newTitle, setNewTitle] = useState("");
   const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
+  const [expiryItems, setExpiryItems] = useState<ExpiryItem[]>([]);
 
   const fetchChecklists = useCallback(async () => {
     if (!token) return;
@@ -60,9 +69,21 @@ export default function DashboardPage() {
     }
   }, [token]);
 
+  const fetchExpiryItems = useCallback(async () => {
+    if (!token) return;
+    const today = new Date().toISOString().split("T")[0];
+    const res = await fetch(`${API}/expiry/?expiry_date=${today}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      setExpiryItems(await res.json());
+    }
+  }, [token]);
+
   useEffect(() => {
     fetchChecklists();
-  }, [fetchChecklists]);
+    fetchExpiryItems();
+  }, [fetchChecklists, fetchExpiryItems]);
 
   const toggleCheck = (id: number) => {
     setLocalChecks((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -346,28 +367,43 @@ export default function DashboardPage() {
             <h2 className="font-hanken text-[14px] leading-[18px] font-bold text-[var(--color-text-primary)]">소비기한 현황</h2>
           </div>
           <div className="space-y-2">
-            {[
-              { name: "참치마요 삼각김밥 105g", remaining: "잔여 1시간 15분", expiry: "11:00", qty: "2개", dot: "bg-[var(--color-alert-critical)]", color: "text-[var(--color-alert-critical)]" },
-              { name: "에그 샌드위치 180g", remaining: "잔여 2시간 30분", expiry: "12:00", qty: "1개", dot: "bg-[var(--color-secondary-fixed-dim)]", color: "text-[var(--color-secondary)]" },
-              { name: "바나나우유 240ml", remaining: "오늘 24:00 만료", expiry: "24:00", qty: "4개", dot: "bg-[var(--color-status-active)]", color: "text-[var(--color-text-muted)]" },
-            ].map((item) => (
-              <div key={item.name} className="p-2.5 rounded-lg bg-[var(--color-surface-muted)] border border-[var(--color-border-subtle)] flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <span className={`w-2 h-2 rounded-full ${item.dot} shrink-0`} />
-                    <span className="font-hanken text-xs font-bold text-[var(--color-text-primary)] truncate">{item.name}</span>
+            {expiryItems.map((item) => {
+              const now = new Date();
+              const expiry = new Date(`${item.expiry_date}T${item.expiry_time}`);
+              const diffMs = expiry.getTime() - now.getTime();
+              const diffH = Math.floor(diffMs / 3600000);
+              const diffM = Math.floor((diffMs % 3600000) / 60000);
+              const isUrgent = diffH < 2;
+              const isWarning = diffH >= 2 && diffH < 6;
+              const remaining = diffMs <= 0
+                ? "만료됨"
+                : diffH >= 12
+                  ? `오늘 ${item.expiry_time.slice(0, 5)} 만료`
+                  : `잔여 ${diffH}시간 ${diffM}분`;
+              const dot = isUrgent ? "bg-[var(--color-alert-critical)]" : isWarning ? "bg-[var(--color-secondary-fixed-dim)]" : "bg-[var(--color-status-active)]";
+              const color = isUrgent ? "text-[var(--color-alert-critical)]" : isWarning ? "text-[var(--color-secondary)]" : "text-[var(--color-text-muted)]";
+              return (
+                <div key={item.id} className="p-2.5 rounded-lg bg-[var(--color-surface-muted)] border border-[var(--color-border-subtle)] flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className={`w-2 h-2 rounded-full ${dot} shrink-0`} />
+                      <span className="font-hanken text-xs font-bold text-[var(--color-text-primary)] truncate">{item.product_name}</span>
+                    </div>
+                    <span className={`font-jetbrains text-xs ${color} font-bold shrink-0`}>{remaining}</span>
                   </div>
-                  <span className={`font-jetbrains text-xs ${item.color} font-bold shrink-0`}>{item.remaining}</span>
-                </div>
-                <div className="flex items-center justify-between text-xs pt-1 border-t border-[var(--color-border-subtle)]/80">
-                  <div className="flex items-center gap-2 font-hanken text-[11px] text-[var(--color-text-muted)]">
-                    <span>만료: <b className="font-jetbrains text-[var(--color-text-primary)]">{item.expiry}</b></span>
-                    <span className="text-[var(--color-outline-variant)]">|</span>
-                    <span>수량: <b className="font-jetbrains text-[var(--color-text-primary)]">{item.qty}</b></span>
+                  <div className="flex items-center justify-between text-xs pt-1 border-t border-[var(--color-border-subtle)]/80">
+                    <div className="flex items-center gap-2 font-hanken text-[11px] text-[var(--color-text-muted)]">
+                      <span>만료: <b className="font-jetbrains text-[var(--color-text-primary)]">{item.expiry_time.slice(0, 5)}</b></span>
+                      <span className="text-[var(--color-outline-variant)]">|</span>
+                      <span>수량: <b className="font-jetbrains text-[var(--color-text-primary)]">{item.quantity}개</b></span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
+            {expiryItems.length === 0 && (
+              <p className="text-center text-[var(--color-text-muted)] text-xs py-4">오늘 만료 예정 상품이 없습니다.</p>
+            )}
           </div>
         </section>
 
