@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: flow-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: flow_db
+      POSTGRES_USER: flow_user
+      POSTGRES_PASSWORD: flow_password
+    volumes:
+      - flow-db-data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  flow-db-data:
