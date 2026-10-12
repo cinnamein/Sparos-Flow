@@ -97,10 +97,7 @@
                         <span class="w-2 h-3.5 bg-secondary-fixed-dim rounded-xs"></span>
                         <span class="font-title-sm text-title-sm text-text-primary">현장 즉시 바코드 스캔</span>
                     </div>
-                    <span class="font-caption text-caption text-text-muted flex items-center gap-0.5">
-                        <span class="material-symbols-outlined text-[14px] text-status-active">sensors</span>
-                        리더기 연동됨
-                    </span>
+                    <span class="font-caption text-caption text-text-muted flex items-center gap-0.5"></span>
                 </div>
                 <div class="flex items-center gap-1.5">
                     <div class="relative flex-1">
@@ -405,17 +402,17 @@
                 </div>
                 <span class="text-[11px] font-bold text-text-primary">대시보드</span>
             </a>
-            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="#">
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="order">
                 <span class="material-symbols-outlined text-[22px]">shopping_cart</span>
                 <span class="text-[11px] font-medium text-text-muted">발주</span>
             </a>
-            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="#">
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="checklist">
+                <span class="material-symbols-outlined text-[22px]">checklist</span>
+                <span class="text-[11px] font-medium text-text-muted">체크리스트</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="stock">
                 <span class="material-symbols-outlined text-[22px]">inventory_2</span>
                 <span class="text-[11px] font-medium text-text-muted">재고</span>
-            </a>
-            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="#">
-                <span class="material-symbols-outlined text-[22px]">schedule</span>
-                <span class="text-[11px] font-medium text-text-muted">폐기</span>
             </a>
             <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="#">
                 <span class="material-symbols-outlined text-[22px]">menu</span>

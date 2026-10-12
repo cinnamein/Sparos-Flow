@@ -245,7 +245,7 @@ export default function ChecklistPage() {
       <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center h-16 max-w-[420px] mx-auto bg-[var(--color-surface-container-lowest)] border-t border-[var(--color-border-subtle)] shadow-[0_-2px_6px_rgba(0,0,0,0.03)] px-[var(--spacing-space-xs)]">
         {[
           { icon: "dashboard", label: "대시보드", href: "/" },
-          { icon: "shopping_cart", label: "발주", href: "#" },
+          { icon: "shopping_cart", label: "발주", href: "/order" },
           { icon: "checklist", label: "체크리스트", href: "/checklist", active: true },
           { icon: "inventory_2", label: "재고", href: "/stock" },
           { icon: "menu", label: "더보기", href: "#" },

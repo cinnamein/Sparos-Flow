@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+    <title>spharos FLOW - 발주</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="flow/shared/tailwind-config.js"></script>
+    <link rel="stylesheet" href="flow/shared/styles.css">
+    <style>
+        body {
+            background-color: #fefefe;
+            color: #0b1c30;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+
+<body class="bg-surface-bg min-h-screen text-on-surface flex justify-center pb-24 selection:bg-secondary-fixed selection:text-text-primary">
+    <div class="w-full max-w-[420px] bg-surface-bg min-h-screen flex flex-col relative shadow-sm">
+
+        <!-- Header -->
+        <header class="sticky top-0 z-40 bg-surface-container-lowest/95 backdrop-blur-md px-margin pt-4 pb-3 border-b border-border-subtle shadow-sm">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <a href="main" class="material-symbols-outlined text-[22px] text-text-primary active:scale-95 transition-transform">arrow_back</a>
+                    <h1 class="font-headline-md text-headline-md text-text-primary">발주</h1>
+                </div>
+                <div id="header-summary" class="flex items-center gap-1.5 bg-surface-muted px-2.5 py-1 rounded-full border border-border-subtle">
+                    <span class="text-[11px] font-semibold text-text-primary">0품목</span>
+                    <span class="text-outline-variant text-[10px]">|</span>
+                    <span class="font-mono-data text-[11px] font-bold text-secondary">0개</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 px-margin py-3 pb-24 space-y-3">
+            <!-- AI Summary -->
+            <section class="bg-surface-container-lowest border border-border-subtle rounded-xl p-space-md shadow-sm">
+                <div class="flex items-start justify-between pb-3 border-b border-border-subtle">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-primary-container text-secondary-container flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[19px]">auto_awesome</span>
+                        </div>
+                        <div>
+                            <h2 class="font-headline-md text-[15px] font-bold text-text-primary">AI 스마트 발주 제안</h2>
+                            <p class="text-caption text-text-muted">재고 데이터 기반 실시간 반영</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] font-bold bg-secondary-container/20 text-on-secondary-container border border-secondary-container/40 px-2 py-0.5 rounded-full">
+                        신뢰도 98.4%
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mt-3">
+                    <div class="bg-surface-muted rounded-lg p-2 border border-border-subtle">
+                        <div class="flex items-center gap-1 text-text-muted text-[11px] mb-0.5">
+                            <span class="material-symbols-outlined text-[14px] text-surface-tint">water_drop</span>
+                            <span>수요 변수 반영</span>
+                        </div>
+                        <div class="text-[13px] font-semibold text-text-primary">내일 비 예보 (+30%)</div>
+                    </div>
+                    <div class="bg-surface-muted rounded-lg p-2 border border-border-subtle">
+                        <div class="flex items-center gap-1 text-text-muted text-[11px] mb-0.5">
+                            <span class="material-symbols-outlined text-[14px] text-secondary">inventory</span>
+                            <span>추천 합계</span>
+                        </div>
+                        <div id="ai-total" class="text-[13px] font-semibold text-text-primary">총 0품목 0개</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Select All -->
+            <div class="flex items-center justify-between px-1">
+                <div class="flex items-center gap-2">
+                    <h2 class="font-headline-md text-[15px] font-bold text-text-primary">발주 추천 품목</h2>
+                    <span id="item-count-badge" class="text-[10px] font-bold bg-surface-muted text-text-muted px-2 py-0.5 rounded-full border border-border-subtle">0건</span>
+                </div>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                    <input id="select-all" type="checkbox" checked class="w-4 h-4 rounded accent-[#0b1c30]" onchange="toggleAll()">
+                    <span class="text-[11px] text-text-primary font-semibold">전체 선택</span>
+                </label>
+            </div>
+
+            <!-- Order Items -->
+            <div id="order-list" class="space-y-3"></div>
+
+            <!-- Info -->
+            <div class="p-3 bg-surface-container-low rounded-xl flex items-start gap-2.5 border border-surface-container">
+                <span class="material-symbols-outlined text-surface-tint text-[18px] shrink-0 mt-0.5">info</span>
+                <div class="text-on-surface-variant text-[11px]">
+                    <p class="font-semibold text-text-primary">발주 전송 시 물류 센터로 자동 접수됩니다.</p>
+                    <p class="mt-0.5">수량 조정 후 하단 발주 확정 버튼을 눌러주세요.</p>
+                </div>
+            </div>
+
+            <!-- Confirm Button -->
+            <button id="confirm-btn" onclick="confirmOrder()"
+                class="w-full h-12 rounded-xl bg-text-primary text-white text-[14px] font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md disabled:opacity-40">
+                <span class="material-symbols-outlined text-[18px]">send</span>
+                <span>발주 확정</span>
+            </button>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center h-16 max-w-[420px] mx-auto bg-surface-container-lowest border-t border-border-subtle shadow-[0_-2px_6px_rgba(0,0,0,0.03)] px-space-xs">
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="main">
+                <span class="material-symbols-outlined text-[22px]">dashboard</span>
+                <span class="text-[11px] font-medium text-text-muted">대시보드</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-text-primary gap-0.5 w-16 py-1 active:scale-95 transition-transform" href="#">
+                <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+                <span class="text-[11px] font-bold text-text-primary">발주</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="checklist">
+                <span class="material-symbols-outlined text-[22px]">checklist</span>
+                <span class="text-[11px] font-medium text-text-muted">체크리스트</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="stock">
+                <span class="material-symbols-outlined text-[22px]">inventory_2</span>
+                <span class="text-[11px] font-medium text-text-muted">재고</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="#">
+                <span class="material-symbols-outlined text-[22px]">menu</span>
+                <span class="text-[11px] font-medium text-text-muted">더보기</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        const orders = [
+            { id: 'order-1', name: '신라면 큰사발', currentStock: 3, safetyStock: 15, orderQty: 0, selected: true, reason: '비 예보 수요 +30% 예상', reasonIcon: 'trending_up', reasonColor: 'text-secondary', badge: null },
+            { id: 'order-2', name: '참치마요 삼각김밥', currentStock: 0, safetyStock: 1, orderQty: 0, selected: true, reason: '재고 확인 결품 보정', reasonIcon: 'bolt', reasonColor: 'text-status-active', badge: null },
+            { id: 'order-3', name: '제주 삼다수 500ml', currentStock: 8, safetyStock: 20, orderQty: 0, selected: true, reason: '상시 베스트셀러 자동 보충', reasonIcon: 'shield', reasonColor: 'text-text-muted', badge: null },
+            { id: 'order-4', name: '바나나맛 우유 240ml', currentStock: 7, safetyStock: 20, orderQty: 0, selected: true, reason: '로스 발생 보정 및 기본 안전재고 확보', reasonIcon: 'verified', reasonColor: 'text-text-muted', badge: null },
+            { id: 'order-5', name: '포카칩 오리지널 66g', currentStock: 4, safetyStock: 15, orderQty: 0, selected: true, reason: '주말 대비 주전부리 판매 회전율 상승', reasonIcon: 'trending_up', reasonColor: 'text-secondary', badge: '오후 스낵 수요' },
+        ];
+
+        function render() {
+            const selectedCount = orders.filter(o => o.selected).length;
+            const totalQty = orders.filter(o => o.selected).reduce((s, o) => s + o.orderQty, 0);
+
+            document.getElementById('header-summary').innerHTML = `
+                <span class="text-[11px] font-semibold text-text-primary">${selectedCount}품목</span>
+                <span class="text-outline-variant text-[10px]">|</span>
+                <span class="font-mono-data text-[11px] font-bold text-secondary">${totalQty}개</span>`;
+            document.getElementById('ai-total').innerHTML = `총 <span class="font-mono-data text-secondary">${orders.length}</span>품목 <span class="font-mono-data text-secondary">${totalQty}</span>개`;
+            document.getElementById('item-count-badge').textContent = `${orders.length}건`;
+            document.getElementById('confirm-btn').querySelector('span:last-child').textContent = `발주 확정 (${selectedCount}품목, ${totalQty}개)`;
+            document.getElementById('select-all').checked = orders.every(o => o.selected);
+
+            const list = document.getElementById('order-list');
+            list.innerHTML = orders.map(order => `
+                <div class="bg-surface-container-lowest border border-border-subtle rounded-xl p-space-md shadow-sm">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-start gap-2.5">
+                            <input type="checkbox" ${order.selected ? 'checked' : ''} onchange="toggleItem('${order.id}')"
+                                class="mt-1 w-4 h-4 rounded accent-[#0b1c30]">
+                            <div>
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="text-[13px] font-semibold text-text-primary">${order.name}</span>
+                                    ${order.badge ? `<span class="text-[10px] font-bold bg-alert-warning-bg text-secondary border border-secondary/30 px-1.5 py-0.5 rounded">${order.badge}</span>` : ''}
+                                </div>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-[11px] text-text-muted">현재고: ${order.currentStock}개</span>
+                                    <span class="text-outline-variant text-[10px]">|</span>
+                                    <span class="text-[11px] text-text-muted">안전재고: ${order.safetyStock}개</span>
+                                </div>
+                                <div class="inline-flex items-center gap-1 text-[11px] font-semibold mt-1 bg-surface-muted px-2 py-0.5 rounded ${order.reasonColor}">
+                                    <span class="material-symbols-outlined text-[13px]">${order.reasonIcon}</span>
+                                    <span>${order.reason}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center bg-surface-muted border border-border-subtle rounded-lg p-0.5">
+                            <button onclick="adjustQty('${order.id}', -1)"
+                                class="w-7 h-7 flex items-center justify-center text-text-primary hover:bg-surface-container-high rounded active:scale-90 transition-transform">
+                                <span class="material-symbols-outlined text-[16px]">remove</span>
+                            </button>
+                            <span class="w-8 text-center font-mono-data text-[14px] font-bold text-text-primary">${order.orderQty}</span>
+                            <button onclick="adjustQty('${order.id}', 1)"
+                                class="w-7 h-7 flex items-center justify-center text-text-primary hover:bg-surface-container-high rounded active:scale-90 transition-transform">
+                                <span class="material-symbols-outlined text-[16px]">add</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function adjustQty(id, delta) {
+            const order = orders.find(o => o.id === id);
+            if (order) order.orderQty = Math.max(0, order.orderQty + delta);
+            render();
+        }
+
+        function toggleItem(id) {
+            const order = orders.find(o => o.id === id);
+            if (order) order.selected = !order.selected;
+            render();
+        }
+
+        function toggleAll() {
+            const allSelected = orders.every(o => o.selected);
+            orders.forEach(o => o.selected = !allSelected);
+            render();
+        }
+
+        function confirmOrder() {
+            alert('발주가 확정되었습니다.');
+        }
+
+        render();
+    </script>
+</body>
+
+</html>

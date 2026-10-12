@@ -101,10 +101,6 @@ export default function DashboardPage() {
               <span className="w-2 h-3.5 bg-[var(--color-secondary-fixed-dim)] rounded-xs" />
               <span className="font-hanken text-[14px] leading-[18px] font-bold text-[var(--color-text-primary)]">현장 즉시 바코드 스캔</span>
             </div>
-            <span className="font-hanken text-[11px] leading-[14px] font-medium text-[var(--color-text-muted)] flex items-center gap-0.5">
-              <span className="material-symbols-outlined text-[14px] text-[var(--color-status-active)]">sensors</span>
-              리더기 연동됨
-            </span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="relative flex-1">
@@ -191,7 +187,7 @@ export default function DashboardPage() {
       <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center h-16 max-w-[420px] mx-auto bg-[var(--color-surface-container-lowest)] border-t border-[var(--color-border-subtle)] shadow-[0_-2px_6px_rgba(0,0,0,0.03)] px-[var(--spacing-space-xs)]">
         {[
           { icon: "dashboard", label: "대시보드", active: true, fill: true, href: "/" },
-          { icon: "shopping_cart", label: "발주", active: false, href: "#" },
+          { icon: "shopping_cart", label: "발주", active: false, href: "/order" },
           { icon: "checklist", label: "체크리스트", active: false, href: "/checklist" },
           { icon: "inventory_2", label: "재고", active: false, href: "/stock" },
           { icon: "menu", label: "더보기", active: false, href: "#" },
