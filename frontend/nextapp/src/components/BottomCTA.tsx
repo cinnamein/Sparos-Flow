@@ -6,7 +6,7 @@ interface BottomCTAProps {
   skipLabel: string;
   primaryLabel: string;
   nextPath: string;
-  onPrimaryClick?: () => void;
+  onPrimaryClick?: (e?: React.MouseEvent) => void;
   summary?: React.ReactNode;
 }
 
@@ -34,7 +34,7 @@ export default function BottomCTA({
         </Link>
         <Link
           href={nextPath}
-          onClick={onPrimaryClick}
+          onClick={(e) => onPrimaryClick?.(e)}
           className="w-full h-14 px-5 rounded-xl flex items-center justify-between bg-[#02152f] text-white font-bold hover:bg-opacity-95 active:scale-[0.98] transition-all shadow-lg group"
         >
           <span className="font-hanken text-[15px] tracking-tight font-bold">

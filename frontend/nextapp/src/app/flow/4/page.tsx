@@ -1,13 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import StepIndicator from "@/components/StepIndicator";
 import BottomCTA from "@/components/BottomCTA";
 import { getSessionData, updateStep4 } from "@/lib/session";
 import type { DisposalItem } from "@/lib/types";
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export default function Step4Page() {
+  const router = useRouter();
   const [disposals, setDisposals] = useState<DisposalItem[]>([]);
+  const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
     setDisposals(getSessionData().step4.disposals);
@@ -308,12 +313,41 @@ export default function Step4Page() {
         </div>
       </section>
 
-      <BottomCTA
-        skipLabel="폐기 처리 단계 건너뛰기"
-        primaryLabel="모든 루틴 완료하고 대시보드로 이동"
-        nextPath="/"
-        onPrimaryClick={() => updateStep4(disposals, true)}
-      />
+      {!completed && (
+        <BottomCTA
+          skipLabel="폐기 처리 단계 건너뛰기"
+          primaryLabel="모든 루틴 완료"
+          nextPath="#"
+          onPrimaryClick={(e) => {
+            e?.preventDefault();
+            updateStep4(disposals, true);
+            setCompleted(true);
+          }}
+        />
+      )}
+
+      {completed && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white">
+          <img
+            src={`${BASE_PATH}/images/flow_clear.gif`}
+            alt="업무 완수"
+            className="w-72 h-72 object-contain"
+          />
+          <h2 className="font-hanken text-[22px] font-bold text-[var(--color-text-primary)] mt-4">
+            오늘의 업무를 완수했습니다!
+          </h2>
+          <p className="text-[13px] text-[var(--color-text-muted)] mt-1">
+            수고하셨습니다. 대시보드에서 현황을 확인하세요.
+          </p>
+          <button
+            className="mt-8 px-8 py-3 rounded-xl bg-[#02152f] text-white text-[15px] font-bold active:scale-95 transition-transform shadow-lg"
+            type="button"
+            onClick={() => router.push("/")}
+          >
+            대시보드로 이동
+          </button>
+        </div>
+      )}
     </>
   );
 }
