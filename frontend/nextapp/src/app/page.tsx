@@ -431,7 +431,7 @@ export default function DashboardPage() {
           { icon: "schedule", label: "소비기한", active: false, href: "/expiry" },
           { icon: "menu", label: "더보기", active: false, href: "#" },
         ].map((item) => (
-          <a
+          <Link
             key={item.label}
             className={`flex flex-col items-center justify-center gap-0.5 w-16 py-1 active:scale-95 transition-transform ${
               item.active ? "text-[var(--color-text-primary)]" : "text-[var(--color-on-surface-variant)]"
@@ -447,7 +447,7 @@ export default function DashboardPage() {
             <span className={`text-[11px] ${item.active ? "font-bold text-[var(--color-text-primary)]" : "font-medium text-[var(--color-text-muted)]"}`}>
               {item.label}
             </span>
-          </a>
+          </Link>
         ))}
       </nav>
     </>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import { useAuth } from "@/lib/auth";
 
 const API =
@@ -186,7 +187,7 @@ export default function ExpiryPage() {
           { icon: "schedule", label: "소비기한", href: "/expiry", active: true },
           { icon: "menu", label: "더보기", href: "#" },
         ].map((item) => (
-          <a
+          <Link
             key={item.label}
             className={`flex flex-col items-center justify-center gap-0.5 w-16 py-1 active:scale-95 transition-transform ${
               item.active
@@ -214,7 +215,7 @@ export default function ExpiryPage() {
             >
               {item.label}
             </span>
-          </a>
+          </Link>
         ))}
       </nav>
     </div>
