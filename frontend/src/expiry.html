@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+    <title>spharos FLOW - 소비기한 현황</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="flow/shared/tailwind-config.js"></script>
+    <link rel="stylesheet" href="flow/shared/styles.css">
+    <style>
+        body {
+            background-color: #fefefe;
+            color: #0b1c30;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar { display: none; }
+        .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+
+<body class="bg-surface-bg min-h-screen text-on-surface flex justify-center pb-24 selection:bg-secondary-fixed selection:text-text-primary">
+    <div class="w-full max-w-[420px] bg-surface-bg min-h-screen flex flex-col relative shadow-sm">
+
+        <!-- Header -->
+        <header class="sticky top-0 z-40 bg-surface-container-lowest/95 backdrop-blur-md px-margin pt-4 pb-2 border-b border-border-subtle shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <a href="main" class="material-symbols-outlined text-[22px] text-text-primary active:scale-95 transition-transform">arrow_back</a>
+                    <h1 class="font-headline-md text-headline-md text-text-primary">소비기한 현황</h1>
+                </div>
+                <button id="edit-btn"
+                    class="px-3 py-1.5 rounded-lg text-[12px] font-bold border border-border-subtle text-text-primary active:scale-95 transition-transform"
+                    onclick="toggleEditMode()">
+                    재고 수정
+                </button>
+            </div>
+
+            <!-- Category Tags -->
+            <div id="tag-container" class="flex gap-2 overflow-x-auto pb-1 custom-scrollbar"></div>
+        </header>
+
+        <!-- Item List -->
+        <main class="flex-1 px-margin py-2 pb-20">
+            <div id="item-list" class="divide-y divide-border-subtle"></div>
+            <div id="empty-state" class="hidden text-center py-10 text-body-md text-text-muted">
+                해당 카테고리에 소비기한 항목이 없습니다.
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center h-16 max-w-[420px] mx-auto bg-surface-container-lowest border-t border-border-subtle shadow-[0_-2px_6px_rgba(0,0,0,0.03)] px-space-xs">
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="main">
+                <span class="material-symbols-outlined text-[22px]">dashboard</span>
+                <span class="text-[11px] font-medium text-text-muted">대시보드</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="#">
+                <span class="material-symbols-outlined text-[22px]">shopping_cart</span>
+                <span class="text-[11px] font-medium text-text-muted">발주</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="#">
+                <span class="material-symbols-outlined text-[22px]">inventory_2</span>
+                <span class="text-[11px] font-medium text-text-muted">재고</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-text-primary gap-0.5 w-16 py-1 active:scale-95 transition-transform" href="#">
+                <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">schedule</span>
+                <span class="text-[11px] font-bold text-text-primary">소비기한</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="#">
+                <span class="material-symbols-outlined text-[22px]">menu</span>
+                <span class="text-[11px] font-medium text-text-muted">더보기</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        const API = 'http://localhost:8000/api/v1';
+        let items = [];
+        let activeTag = '전체';
+        let editMode = false;
+        let editQty = {};
+
+        async function fetchItems() {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const res = await fetch(`${API}/expiry/all`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                items = await res.json();
+                renderTags();
+                renderList();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderTags() {
+            const cats = ['전체', ...new Set(items.map(i => i.category))];
+            const container = document.getElementById('tag-container');
+            container.innerHTML = cats.map(cat => `
+                <button onclick="setTag('${cat}')"
+                    class="px-3 py-1 rounded-full text-[12px] font-semibold whitespace-nowrap transition-colors ${
+                        activeTag === cat
+                            ? 'bg-text-primary text-white'
+                            : 'bg-surface-muted text-text-muted border border-border-subtle'
+                    }">${cat}</button>
+            `).join('');
+        }
+
+        function renderList() {
+            const filtered = activeTag === '전체' ? items : items.filter(i => i.category === activeTag);
+            const list = document.getElementById('item-list');
+            const empty = document.getElementById('empty-state');
+
+            if (filtered.length === 0) {
+                list.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            list.innerHTML = filtered.map(item => {
+                const qty = editMode ? (editQty[item.id] ?? item.quantity) : item.quantity;
+                const timeStr = item.expiry_time.slice(0, 5);
+
+                return `
+                <div class="flex items-center justify-between py-3">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-body-md text-[13px] font-semibold text-text-primary truncate">${item.product_name}</p>
+                        <p class="text-caption text-text-muted mt-0.5">${item.expiry_date} ${timeStr} 만료</p>
+                    </div>
+                    ${editMode ? `
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button onclick="adjustQty(${item.id}, -1)"
+                                class="w-6 h-6 rounded bg-surface-muted border border-slate-300 flex items-center justify-center active:scale-95 text-xs font-bold">-</button>
+                            <span class="font-mono-data text-[14px] font-bold text-text-primary w-6 text-center">${qty}</span>
+                            <button onclick="adjustQty(${item.id}, 1)"
+                                class="w-6 h-6 rounded bg-surface-muted border border-slate-300 flex items-center justify-center active:scale-95 text-xs font-bold">+</button>
+                        </div>
+                    ` : `
+                        <span class="font-mono-data text-[14px] font-bold text-text-primary shrink-0">
+                            ${qty}<span class="text-[11px] font-normal text-text-muted ml-0.5">개</span>
+                        </span>
+                    `}
+                </div>`;
+            }).join('');
+        }
+
+        function setTag(cat) {
+            activeTag = cat;
+            renderTags();
+            renderList();
+        }
+
+        function toggleEditMode() {
+            if (editMode) {
+                saveEdit();
+            } else {
+                editMode = true;
+                editQty = {};
+                items.forEach(i => editQty[i.id] = i.quantity);
+                document.getElementById('edit-btn').textContent = '저장';
+                document.getElementById('edit-btn').classList.remove('border', 'border-border-subtle', 'text-text-primary');
+                document.getElementById('edit-btn').classList.add('bg-text-primary', 'text-white');
+                renderList();
+            }
+        }
+
+        function adjustQty(id, delta) {
+            const current = editQty[id] ?? 0;
+            editQty[id] = Math.max(0, current + delta);
+            renderList();
+        }
+
+        async function saveEdit() {
+            const token = localStorage.getItem('token');
+            const changed = items.filter(i => editQty[i.id] !== i.quantity);
+            await Promise.all(changed.map(i =>
+                fetch(`${API}/expiry/${i.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ quantity: editQty[i.id] })
+                })
+            ));
+            items = items.map(i => ({ ...i, quantity: editQty[i.id] ?? i.quantity }));
+            editMode = false;
+            document.getElementById('edit-btn').textContent = '재고 수정';
+            document.getElementById('edit-btn').classList.add('border', 'border-border-subtle', 'text-text-primary');
+            document.getElementById('edit-btn').classList.remove('bg-text-primary', 'text-white');
+            renderList();
+        }
+
+        fetchItems();
+    </script>
+</body>
+
+</html>

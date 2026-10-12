@@ -425,18 +425,18 @@ export default function DashboardPage() {
       {/* Bottom Nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center h-16 max-w-[420px] mx-auto bg-[var(--color-surface-container-lowest)] border-t border-[var(--color-border-subtle)] shadow-[0_-2px_6px_rgba(0,0,0,0.03)] px-[var(--spacing-space-xs)]">
         {[
-          { icon: "dashboard", label: "대시보드", active: true, fill: true },
-          { icon: "shopping_cart", label: "발주", active: false },
-          { icon: "inventory_2", label: "재고", active: false },
-          { icon: "schedule", label: "폐기", active: false },
-          { icon: "menu", label: "더보기", active: false },
+          { icon: "dashboard", label: "대시보드", active: true, fill: true, href: "/" },
+          { icon: "shopping_cart", label: "발주", active: false, href: "#" },
+          { icon: "inventory_2", label: "재고", active: false, href: "#" },
+          { icon: "schedule", label: "소비기한", active: false, href: "/expiry" },
+          { icon: "menu", label: "더보기", active: false, href: "#" },
         ].map((item) => (
           <a
             key={item.label}
             className={`flex flex-col items-center justify-center gap-0.5 w-16 py-1 active:scale-95 transition-transform ${
               item.active ? "text-[var(--color-text-primary)]" : "text-[var(--color-on-surface-variant)]"
             }`}
-            href="#"
+            href={item.href}
           >
             <span
               className="material-symbols-outlined text-[22px]"

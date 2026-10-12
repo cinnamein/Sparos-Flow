@@ -15,3 +15,14 @@ async def get_expiry_items_by_store_and_date(
         .order_by(ExpiryItem.expiry_time)
     )
     return list(result.scalars().all())
+
+
+async def get_all_expiry_items_by_store(
+    db: AsyncSession, store_id: int
+) -> list[ExpiryItem]:
+    result = await db.execute(
+        select(ExpiryItem)
+        .where(ExpiryItem.store_id == store_id)
+        .order_by(ExpiryItem.expiry_date, ExpiryItem.expiry_time)
+    )
+    return list(result.scalars().all())

@@ -5,6 +5,7 @@ from datetime import date, time
 class ExpiryItemResponse(BaseModel):
     id: int
     product_name: str
+    category: str
     expiry_date: date
     expiry_time: time
     quantity: int
