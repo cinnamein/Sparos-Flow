@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+    <title>spharos FLOW - 체크리스트</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="flow/shared/tailwind-config.js"></script>
+    <link rel="stylesheet" href="flow/shared/styles.css">
+    <style>
+        body {
+            background-color: #fefefe;
+            color: #0b1c30;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+
+<body class="bg-surface-bg min-h-screen text-on-surface flex justify-center pb-24 selection:bg-secondary-fixed selection:text-text-primary">
+    <div class="w-full max-w-[420px] bg-surface-bg min-h-screen flex flex-col relative shadow-sm">
+
+        <!-- Header -->
+        <header class="sticky top-0 z-40 bg-surface-container-lowest/95 backdrop-blur-md px-margin pt-4 pb-3 border-b border-border-subtle shadow-sm">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <a href="main" class="material-symbols-outlined text-[22px] text-text-primary active:scale-95 transition-transform">arrow_back</a>
+                    <h1 class="font-headline-md text-headline-md text-text-primary">체크리스트</h1>
+                    <span id="counter" class="font-mono-data text-[12px] font-semibold text-text-muted bg-surface-muted px-2 py-0.5 rounded-full">0/0</span>
+                </div>
+                <button id="save-btn"
+                    class="px-3 py-1.5 rounded-lg text-[12px] font-bold bg-text-primary text-white active:scale-95 transition-transform opacity-40 pointer-events-none"
+                    onclick="saveChecklists()">
+                    <span class="material-symbols-outlined text-[14px] align-middle mr-0.5">save</span>저장
+                </button>
+            </div>
+        </header>
+
+        <!-- Checklist -->
+        <main class="flex-1 px-margin py-3 pb-24 space-y-2">
+            <div id="checklist-items" class="space-y-2"></div>
+
+            <div id="empty-state" class="hidden text-center py-10 text-[13px] text-text-muted">
+                아직 업무가 없습니다.
+            </div>
+
+            <!-- Add Form (hidden by default) -->
+            <div id="add-form" class="hidden flex items-center gap-1.5 pt-1">
+                <input id="new-title" type="text" placeholder="업무 제목 입력"
+                    class="flex-1 px-2.5 py-2 text-[13px] bg-surface-muted rounded-lg border border-border-subtle text-text-primary placeholder:text-text-muted focus:ring-1 focus:ring-secondary-fixed-dim focus:border-secondary-fixed-dim outline-none"
+                    onkeydown="if(event.key==='Enter') addChecklist()">
+                <button onclick="addChecklist()"
+                    class="px-3 py-2 rounded-lg bg-text-primary text-white text-[12px] font-bold active:scale-95 transition-transform">추가</button>
+                <button onclick="hideAddForm()"
+                    class="px-2.5 py-2 rounded-lg text-text-muted text-[12px] hover:bg-surface-muted">취소</button>
+            </div>
+
+            <!-- Add Button -->
+            <button id="add-btn" onclick="showAddForm()"
+                class="w-full flex items-center justify-center gap-1 py-2.5 rounded-lg border border-dashed border-border-subtle text-text-muted hover:bg-surface-muted hover:text-text-primary transition-colors">
+                <span class="material-symbols-outlined text-[16px]">add</span>
+                <span class="text-[12px] font-medium">업무 추가</span>
+            </button>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center h-16 max-w-[420px] mx-auto bg-surface-container-lowest border-t border-border-subtle shadow-[0_-2px_6px_rgba(0,0,0,0.03)] px-space-xs">
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="main">
+                <span class="material-symbols-outlined text-[22px]">dashboard</span>
+                <span class="text-[11px] font-medium text-text-muted">대시보드</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="#">
+                <span class="material-symbols-outlined text-[22px]">shopping_cart</span>
+                <span class="text-[11px] font-medium text-text-muted">발주</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-text-primary gap-0.5 w-16 py-1 active:scale-95 transition-transform" href="#">
+                <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">checklist</span>
+                <span class="text-[11px] font-bold text-text-primary">체크리스트</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="stock">
+                <span class="material-symbols-outlined text-[22px]">inventory_2</span>
+                <span class="text-[11px] font-medium text-text-muted">재고</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant gap-0.5 w-16 py-1 hover:text-text-primary active:scale-95 transition-transform" href="#">
+                <span class="material-symbols-outlined text-[22px]">menu</span>
+                <span class="text-[11px] font-medium text-text-muted">더보기</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        const API = 'http://localhost:8000/api/v1';
+        let items = [];
+        let localChecks = {};
+        let dirty = false;
+
+        async function fetchChecklists() {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            const today = new Date().toISOString().split('T')[0];
+            try {
+                const res = await fetch(`${API}/checklist/?work_date=${today}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    items = await res.json();
+                    localChecks = {};
+                    items.forEach(c => localChecks[c.id] = c.is_completed);
+                    dirty = false;
+                    render();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function render() {
+            const sorted = [...items].sort((a, b) => {
+                const ac = localChecks[a.id] ?? a.is_completed;
+                const bc = localChecks[b.id] ?? b.is_completed;
+                if (ac !== bc) return ac ? 1 : -1;
+                return 0;
+            });
+
+            const container = document.getElementById('checklist-items');
+            const empty = document.getElementById('empty-state');
+            const completedCount = Object.values(localChecks).filter(Boolean).length;
+            document.getElementById('counter').textContent = `${completedCount}/${items.length}`;
+
+            const saveBtn = document.getElementById('save-btn');
+            if (dirty) {
+                saveBtn.classList.remove('opacity-40', 'pointer-events-none');
+            } else {
+                saveBtn.classList.add('opacity-40', 'pointer-events-none');
+            }
+
+            if (sorted.length === 0) {
+                container.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            container.innerHTML = sorted.map(item => {
+                const checked = localChecks[item.id] ?? item.is_completed;
+                return `
+                <div class="flex items-start gap-2.5 p-3 rounded-lg transition-colors ${
+                    checked
+                        ? 'bg-surface-muted/60 border border-border-subtle'
+                        : 'bg-surface-container-lowest border border-border-subtle'
+                }">
+                    <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleCheck(${item.id})"
+                        class="mt-0.5 rounded accent-[#0b1c30] w-4 h-4 cursor-pointer">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[13px] font-semibold truncate ${
+                                checked ? 'text-text-muted line-through' : 'text-text-primary'
+                            }">${item.title}</span>
+                            <div class="flex items-center gap-1 shrink-0 ml-2">
+                                ${item.due_time ? `<span class="text-[10px] px-1.5 py-0.5 rounded ${
+                                    checked ? 'bg-slate-200 text-text-muted' : 'bg-surface-muted text-text-muted'
+                                }">${item.due_time.slice(0, 5)}</span>` : ''}
+                                <button onclick="deleteChecklist(${item.id})"
+                                    class="w-6 h-6 flex items-center justify-center rounded hover:bg-red-100 text-text-muted hover:text-red-500 transition-colors">
+                                    <span class="material-symbols-outlined text-[16px]">close</span>
+                                </button>
+                            </div>
+                        </div>
+                        ${item.assigned_user_name ? `<p class="text-[11px] text-text-muted mt-0.5">담당: ${item.assigned_user_name}</p>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function toggleCheck(id) {
+            localChecks[id] = !localChecks[id];
+            dirty = true;
+            render();
+        }
+
+        async function saveChecklists() {
+            const token = localStorage.getItem('token');
+            if (!token || !dirty) return;
+            const payload = Object.entries(localChecks).map(([id, is_completed]) => ({
+                id: Number(id), is_completed
+            }));
+            await fetch(`${API}/checklist/`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ items: payload })
+            });
+            dirty = false;
+            render();
+        }
+
+        async function addChecklist() {
+            const token = localStorage.getItem('token');
+            const input = document.getElementById('new-title');
+            const title = input.value.trim();
+            if (!token || !title) return;
+            const today = new Date().toISOString().split('T')[0];
+            const res = await fetch(`${API}/checklist/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ title, work_date: today })
+            });
+            if (res.ok) {
+                const created = await res.json();
+                items.push(created);
+                localChecks[created.id] = false;
+                input.value = '';
+                hideAddForm();
+                render();
+            }
+        }
+
+        async function deleteChecklist(id) {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            const res = await fetch(`${API}/checklist/${id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                items = items.filter(c => c.id !== id);
+                delete localChecks[id];
+                render();
+            }
+        }
+
+        function showAddForm() {
+            document.getElementById('add-form').classList.remove('hidden');
+            document.getElementById('add-btn').classList.add('hidden');
+            document.getElementById('new-title').focus();
+        }
+
+        function hideAddForm() {
+            document.getElementById('add-form').classList.add('hidden');
+            document.getElementById('add-btn').classList.remove('hidden');
+            document.getElementById('new-title').value = '';
+        }
+
+        fetchChecklists();
+    </script>
+</body>
+
+</html>

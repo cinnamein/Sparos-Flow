@@ -6,15 +6,6 @@ import { useAuth } from "@/lib/auth";
 
 const API = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000") + "/api/v1";
 
-interface ChecklistItem {
-  id: number;
-  title: string;
-  work_date: string;
-  due_time: string | null;
-  is_completed: boolean;
-  assigned_user_name: string | null;
-}
-
 interface ExpiryItem {
   id: number;
   product_name: string;
@@ -43,31 +34,7 @@ function LiveClock() {
 
 export default function DashboardPage() {
   const { user, token, logout } = useAuth();
-  const [checklists, setChecklists] = useState<ChecklistItem[]>([]);
-  const [localChecks, setLocalChecks] = useState<Record<number, boolean>>({});
-  const [dirty, setDirty] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [adding, setAdding] = useState(false);
-  const [deleting, setDeleting] = useState<number | null>(null);
   const [expiryItems, setExpiryItems] = useState<ExpiryItem[]>([]);
-
-  const fetchChecklists = useCallback(async () => {
-    if (!token) return;
-    const today = new Date().toISOString().split("T")[0];
-    const res = await fetch(`${API}/checklist/?work_date=${today}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) {
-      const data: ChecklistItem[] = await res.json();
-      setChecklists(data);
-      const checks: Record<number, boolean> = {};
-      data.forEach((c) => (checks[c.id] = c.is_completed));
-      setLocalChecks(checks);
-      setDirty(false);
-    }
-  }, [token]);
 
   const fetchExpiryItems = useCallback(async () => {
     if (!token) return;
@@ -81,78 +48,8 @@ export default function DashboardPage() {
   }, [token]);
 
   useEffect(() => {
-    fetchChecklists();
     fetchExpiryItems();
-  }, [fetchChecklists, fetchExpiryItems]);
-
-  const toggleCheck = (id: number) => {
-    setLocalChecks((prev) => ({ ...prev, [id]: !prev[id] }));
-    setDirty(true);
-  };
-
-  const saveChecklists = async () => {
-    if (!token) return;
-    setSaving(true);
-    const items = Object.entries(localChecks).map(([id, is_completed]) => ({
-      id: Number(id),
-      is_completed,
-    }));
-    await fetch(`${API}/checklist/`, {
-      method: "PATCH",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ items }),
-    });
-    setDirty(false);
-    setSaving(false);
-  };
-
-  const addChecklist = async () => {
-    if (!token || !newTitle.trim()) return;
-    setAdding(true);
-    const today = new Date().toISOString().split("T")[0];
-    const res = await fetch(`${API}/checklist/`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ title: newTitle.trim(), work_date: today }),
-    });
-    if (res.ok) {
-      const created: ChecklistItem = await res.json();
-      setChecklists((prev) => [...prev, created]);
-      setLocalChecks((prev) => ({ ...prev, [created.id]: false }));
-      setNewTitle("");
-      setShowAddForm(false);
-    }
-    setAdding(false);
-  };
-
-  const deleteChecklist = async (id: number) => {
-    if (!token) return;
-    setDeleting(id);
-    const res = await fetch(`${API}/checklist/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) {
-      setChecklists((prev) => prev.filter((c) => c.id !== id));
-      setLocalChecks((prev) => {
-        const next = { ...prev };
-        delete next[id];
-        return next;
-      });
-    }
-    setDeleting(null);
-  };
-
-  const sortedChecklists = [...checklists].sort((a, b) => {
-    const aChecked = localChecks[a.id] ?? a.is_completed;
-    const bChecked = localChecks[b.id] ?? b.is_completed;
-    if (aChecked !== bChecked) return aChecked ? 1 : -1;
-    return 0;
-  });
-
-  const completedCount = Object.values(localChecks).filter(Boolean).length;
-  const totalCount = checklists.length;
-  const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  }, [fetchExpiryItems]);
 
   return (
     <>
@@ -228,138 +125,6 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* Task Completion */}
-        <section className="bg-[var(--color-surface-container-lowest)] rounded-xl p-[var(--spacing-space-md)] border border-[var(--color-border-subtle)] shadow-[0_1px_2px_rgba(0,0,0,0.04)] space-y-[var(--spacing-space-lg)]">
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-baseline gap-1.5">
-                <span className="font-hanken text-[15px] leading-[20px] font-bold text-[var(--color-text-primary)]">업무 완수율</span>
-                <span className="font-jetbrains text-[18px] leading-[22px] font-bold text-[var(--color-text-primary)]">{percent}%</span>
-              </div>
-            </div>
-            <div className="w-full bg-[var(--color-surface-muted)] h-2.5 rounded-full overflow-hidden p-0.5 border border-[var(--color-border-subtle)]">
-              <div className="bg-gradient-to-r from-[var(--color-text-primary)] via-[var(--color-text-primary)] to-[var(--color-secondary-fixed-dim)] h-full rounded-full transition-all duration-500 relative" style={{ width: `${percent}%` }}>
-                <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-white shadow-sm" />
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-2 pt-1 border-t border-[var(--color-border-subtle)]">
-              {[
-                { label: "완료 건수", value: `${completedCount}건`, color: "text-[var(--color-text-primary)]" },
-                { label: "잔여 과업", value: `${totalCount - completedCount}건`, color: "text-[var(--color-secondary)]" },
-                { label: "전체 업무", value: `${totalCount}건`, color: "text-[var(--color-text-muted)]" },
-              ].map((stat) => (
-                <div key={stat.label} className="bg-[var(--color-surface-muted)] rounded-lg p-2 text-center">
-                  <span className="font-hanken text-[11px] text-[var(--color-text-muted)] block">{stat.label}</span>
-                  <span className={`font-jetbrains text-sm font-bold ${stat.color}`}>{stat.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="border-t border-[var(--color-border-subtle)]" />
-
-          {/* Checklist */}
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between pb-1 border-b border-[var(--color-border-subtle)]">
-              <div className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[18px] text-[var(--color-text-primary)]">checklist</span>
-                <h2 className="font-hanken text-[14px] leading-[18px] font-bold text-[var(--color-text-primary)]">당일 업무 체크리스트</h2>
-              </div>
-              <button
-                onClick={saveChecklists}
-                disabled={!dirty || saving}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--color-text-primary)] text-white text-[11px] font-bold font-hanken active:scale-95 transition-transform disabled:opacity-40"
-              >
-                <span className="material-symbols-outlined text-[14px]">save</span>
-                {saving ? "저장 중..." : "저장"}
-              </button>
-            </div>
-            <div className="space-y-1.5">
-              {sortedChecklists.map((item) => {
-                const checked = localChecks[item.id] ?? item.is_completed;
-                return (
-                  <div
-                    key={item.id}
-                    className={`flex items-start gap-2.5 p-2 rounded-lg transition-colors ${
-                      checked
-                        ? "bg-[var(--color-surface-muted)]/60 border border-[var(--color-border-subtle)]"
-                        : "bg-[var(--color-surface-container-lowest)] border border-[var(--color-border-subtle)] hover:bg-[var(--color-surface-muted)]"
-                    }`}
-                  >
-                    <input
-                      checked={checked}
-                      onChange={() => toggleCheck(item.id)}
-                      className="mt-0.5 rounded accent-[var(--color-text-primary)] w-4 h-4 cursor-pointer"
-                      type="checkbox"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className={`font-hanken text-xs font-semibold truncate ${checked ? "text-[var(--color-text-muted)] line-through" : "text-[var(--color-text-primary)]"}`}>
-                          {item.title}
-                        </span>
-                        <div className="flex items-center gap-1 shrink-0 ml-2">
-                          {item.due_time && (
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${checked ? "bg-slate-200 text-[var(--color-text-muted)]" : "bg-[var(--color-surface-muted)] text-[var(--color-text-muted)]"}`}>
-                              {item.due_time.slice(0, 5)}
-                            </span>
-                          )}
-                          <button
-                            onClick={() => deleteChecklist(item.id)}
-                            disabled={deleting === item.id}
-                            className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-100 text-[var(--color-text-muted)] hover:text-red-500 transition-colors disabled:opacity-40"
-                          >
-                            <span className="material-symbols-outlined text-[14px]">close</span>
-                          </button>
-                        </div>
-                      </div>
-                      {item.assigned_user_name && (
-                        <p className="font-hanken text-[11px] text-[var(--color-text-muted)] mt-0.5">담당: {item.assigned_user_name}</p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-              {checklists.length === 0 && (
-                <p className="text-center text-[var(--color-text-muted)] text-xs py-4">아직 업무가 없습니다.</p>
-              )}
-            </div>
-
-            {showAddForm ? (
-              <div className="flex items-center gap-1.5 pt-1">
-                <input
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && addChecklist()}
-                  placeholder="업무 제목 입력"
-                  autoFocus
-                  className="flex-1 px-2.5 py-1.5 text-xs font-hanken bg-[var(--color-surface-muted)] rounded-lg border border-[var(--color-border-subtle)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:ring-1 focus:ring-[var(--color-secondary-fixed-dim)] focus:border-[var(--color-secondary-fixed-dim)] outline-none"
-                />
-                <button
-                  onClick={addChecklist}
-                  disabled={adding || !newTitle.trim()}
-                  className="px-2.5 py-1.5 rounded-lg bg-[var(--color-text-primary)] text-white text-[11px] font-bold font-hanken active:scale-95 transition-transform disabled:opacity-50"
-                >
-                  {adding ? "추가 중..." : "추가"}
-                </button>
-                <button
-                  onClick={() => { setShowAddForm(false); setNewTitle(""); }}
-                  className="px-2 py-1.5 rounded-lg text-[var(--color-text-muted)] text-[11px] font-hanken hover:bg-[var(--color-surface-muted)]"
-                >
-                  취소
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setShowAddForm(true)}
-                className="w-full flex items-center justify-center gap-1 py-2 rounded-lg border border-dashed border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text-primary)] transition-colors"
-              >
-                <span className="material-symbols-outlined text-[16px]">add</span>
-                <span className="font-hanken text-xs font-medium">업무 추가</span>
-              </button>
-            )}
-          </div>
-        </section>
-
         {/* Expiry Status */}
         <section className="bg-[var(--color-surface-container-lowest)] rounded-xl p-[var(--spacing-space-md)] border border-[var(--color-border-subtle)] shadow-[0_1px_2px_rgba(0,0,0,0.04)] space-y-2.5">
           <div className="flex items-center gap-1.5 pb-1 border-b border-[var(--color-border-subtle)]">
@@ -427,7 +192,7 @@ export default function DashboardPage() {
         {[
           { icon: "dashboard", label: "대시보드", active: true, fill: true, href: "/" },
           { icon: "shopping_cart", label: "발주", active: false, href: "#" },
-          { icon: "checklist", label: "체크리스트", active: false, href: "/flow/3" },
+          { icon: "checklist", label: "체크리스트", active: false, href: "/checklist" },
           { icon: "inventory_2", label: "재고", active: false, href: "/stock" },
           { icon: "menu", label: "더보기", active: false, href: "#" },
         ].map((item) => (

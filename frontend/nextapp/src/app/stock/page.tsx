@@ -183,7 +183,7 @@ export default function ExpiryPage() {
         {[
           { icon: "dashboard", label: "대시보드", href: "/" },
           { icon: "shopping_cart", label: "발주", href: "#" },
-          { icon: "checklist", label: "체크리스트", href: "/flow/3" },
+          { icon: "checklist", label: "체크리스트", href: "/checklist" },
           { icon: "inventory_2", label: "재고", href: "/stock", active: true },
           { icon: "menu", label: "더보기", href: "#" },
         ].map((item) => (
