@@ -29,7 +29,7 @@ export default function ExpiryPage() {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => r.json())
-      .then((data: ExpiryItem[]) => setItems(data));
+      .then((data) => setItems(Array.isArray(data) ? data : []));
   }, [token]);
 
   const categories = useMemo(() => {
@@ -183,8 +183,8 @@ export default function ExpiryPage() {
         {[
           { icon: "dashboard", label: "대시보드", href: "/" },
           { icon: "shopping_cart", label: "발주", href: "#" },
-          { icon: "inventory_2", label: "재고", href: "#" },
-          { icon: "schedule", label: "소비기한", href: "/expiry", active: true },
+          { icon: "checklist", label: "체크리스트", href: "/flow/3" },
+          { icon: "inventory_2", label: "재고", href: "/stock", active: true },
           { icon: "menu", label: "더보기", href: "#" },
         ].map((item) => (
           <Link

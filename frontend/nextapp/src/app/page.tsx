@@ -427,8 +427,8 @@ export default function DashboardPage() {
         {[
           { icon: "dashboard", label: "대시보드", active: true, fill: true, href: "/" },
           { icon: "shopping_cart", label: "발주", active: false, href: "#" },
-          { icon: "inventory_2", label: "재고", active: false, href: "#" },
-          { icon: "schedule", label: "소비기한", active: false, href: "/expiry" },
+          { icon: "checklist", label: "체크리스트", active: false, href: "/flow/3" },
+          { icon: "inventory_2", label: "재고", active: false, href: "/stock" },
           { icon: "menu", label: "더보기", active: false, href: "#" },
         ].map((item) => (
           <Link
