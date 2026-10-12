@@ -57,8 +57,7 @@ export default function Step2Page() {
       <StepIndicator currentStep={2} />
 
       {/* AI Recommendation Summary */}
-      <section className="bg-[var(--color-surface-container-lowest)] border border-[var(--color-border-subtle)] rounded-xl p-[var(--spacing-space-md)] shadow-sm relative overflow-hidden">
-        <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-[var(--color-secondary-container)]/10 rounded-full blur-xl pointer-events-none" />
+      <section className="bg-[var(--color-surface-container-lowest)] border border-[var(--color-border-subtle)] rounded-xl p-[var(--spacing-space-md)] shadow-sm">
         <div className="flex items-start justify-between pb-3 border-b border-[var(--color-border-subtle)]">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-[var(--color-primary-container)] text-[var(--color-secondary-container)] flex items-center justify-center">

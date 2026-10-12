@@ -8,8 +8,8 @@ const API = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000") + "/api
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const [employeeId, setEmployeeId] = useState("");
-  const [password, setPassword] = useState("");
+  const [employeeId, setEmployeeId] = useState("STF-2024-001");
+  const [password, setPassword] = useState("staff1234");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
