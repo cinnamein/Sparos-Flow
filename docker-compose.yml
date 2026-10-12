@@ -21,7 +21,7 @@ services:
     build: ./backend
     container_name: flow-backend
     ports:
-      - "8000:8000"
+      - "8000:8080"
     environment:
       DATABASE_URL: "postgresql+asyncpg://flow_user:flow_password@db:5432/flow_db"
     depends_on:

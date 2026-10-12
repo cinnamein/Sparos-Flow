@@ -3,36 +3,72 @@
 import { useState, useEffect, useMemo } from "react";
 import StepIndicator from "@/components/StepIndicator";
 import BottomCTA from "@/components/BottomCTA";
-import { getSessionData, updateStep1 } from "@/lib/session";
-import type { InventoryItem } from "@/lib/types";
+
+const API =
+  (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000") + "/api/v1";
+
+interface InventoryCheckAPI {
+  id: number;
+  product_name: string;
+  sku: string;
+  category: string;
+  category_label: string;
+  pos_stock: number;
+}
+
+interface InventoryItem {
+  id: string;
+  name: string;
+  sku: string;
+  category: string;
+  categoryLabel: string;
+  posStock: number;
+  actualStock: number;
+  confirmed: boolean;
+}
 
 export default function Step1Page() {
   const [items, setItems] = useState<InventoryItem[]>([]);
 
   useEffect(() => {
-    setItems(getSessionData().step1.items);
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    fetch(`${API}/inventory/checks`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((data: InventoryCheckAPI[]) => {
+        setItems(
+          data.map((d) => ({
+            id: String(d.id),
+            name: d.product_name,
+            sku: d.sku,
+            category: d.category,
+            categoryLabel: d.category_label,
+            posStock: d.pos_stock,
+            actualStock: d.pos_stock,
+            confirmed: false,
+          })),
+        );
+      });
   }, []);
 
   const adjustStock = (id: string, delta: number) => {
-    setItems((prev) => {
-      const next = prev.map((item) =>
+    setItems((prev) =>
+      prev.map((item) =>
         item.id === id
           ? { ...item, actualStock: Math.max(0, item.actualStock + delta) }
           : item,
-      );
-      updateStep1(next);
-      return next;
-    });
+      ),
+    );
   };
 
   const toggleConfirm = (id: string) => {
-    setItems((prev) => {
-      const next = prev.map((item) =>
+    setItems((prev) =>
+      prev.map((item) =>
         item.id === id ? { ...item, confirmed: !item.confirmed } : item,
-      );
-      updateStep1(next);
-      return next;
-    });
+      ),
+    );
   };
 
   const categories = useMemo(() => {
@@ -65,9 +101,6 @@ export default function Step1Page() {
               barcode_scanner
             </span>
             바코드 직접 입력 및 스캔
-          </span>
-          <span className="text-[11px] text-[var(--color-text-muted)] font-medium">
-            POS 재고 연동 대조
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -190,10 +223,6 @@ export default function Step1Page() {
                               <span className="material-symbols-outlined text-[var(--color-status-active)] text-[20px]">
                                 check_circle
                               </span>
-                            ) : item.expiry ? (
-                              <span className="px-1.5 py-0.5 rounded bg-slate-200 text-[var(--color-text-muted)] text-[10px] font-bold">
-                                {item.expiry}
-                              </span>
                             ) : (
                               <span className="px-1.5 py-0.5 rounded bg-[var(--color-secondary-fixed-dim)]/40 text-[var(--color-on-secondary-fixed)] text-[10px] font-bold">
                                 수량 점검중
@@ -269,8 +298,7 @@ export default function Step1Page() {
                                   onChange={() => toggleConfirm(item.id)}
                                 />
                                 <span className="text-[11px] text-[var(--color-text-primary)] font-medium">
-                                  {item.note ||
-                                    `실재고 ${item.actualStock}개로 보정 확정`}
+                                  실재고 {item.actualStock}개로 보정 확정
                                 </span>
                               </label>
                               <span className="text-[11px] font-jetbrains text-[var(--color-text-muted)]">
@@ -293,7 +321,7 @@ export default function Step1Page() {
         skipLabel="재고 확인 단계 건너뛰기"
         primaryLabel="재고 확인 완료하고 다음 단계로"
         nextPath="/flow/2"
-        onPrimaryClick={() => updateStep1(items, true)}
+        onPrimaryClick={() => {}}
       />
     </>
   );

@@ -8,59 +8,7 @@ import type {
 
 const SESSION_KEY = "sparos-flow-data";
 
-const defaultInventoryItems: InventoryItem[] = [
-  {
-    id: "inv-1",
-    name: "참치마요 삼각김밥 110g",
-    sku: "88010430219",
-    category: "ff",
-    categoryLabel: "FF / 김밥·간편식",
-    posStock: 12,
-    actualStock: 0,
-    confirmed: false,
-    expiry: "유통기한 14:00",
-  },
-  {
-    id: "inv-2",
-    name: "코카콜라 캔 250ml",
-    sku: "88010940188",
-    category: "drink",
-    categoryLabel: "음료 / 유제품",
-    posStock: 24,
-    actualStock: 24,
-    confirmed: true,
-  },
-  {
-    id: "inv-3",
-    name: "빙그레 바나나맛우유 240ml",
-    sku: "88011042001",
-    category: "drink",
-    categoryLabel: "음료 / 유제품",
-    posStock: 8,
-    actualStock: 0,
-    confirmed: false,
-  },
-  {
-    id: "inv-4",
-    name: "신라면 큰사발",
-    sku: "88010120031",
-    category: "snack",
-    categoryLabel: "스낵 / 라면류",
-    posStock: 15,
-    actualStock: 15,
-    confirmed: true,
-  },
-  {
-    id: "inv-5",
-    name: "포카칩 오리지널 66g",
-    sku: "88012210032",
-    category: "snack",
-    categoryLabel: "스낵 / 라면류",
-    posStock: 10,
-    actualStock: 10,
-    confirmed: true,
-  },
-];
+const defaultInventoryItems: InventoryItem[] = [];
 
 const defaultOrderItems: OrderItem[] = [
   {

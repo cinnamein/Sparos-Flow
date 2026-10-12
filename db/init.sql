@@ -189,6 +189,35 @@ INSERT INTO checklists (store_id, assigned_user_id, title, work_date, due_time, 
     (2, 5, '워크인 쿨러 음료 전면 보충',           '2026-10-12', '09:00', FALSE),
     (2, 4, '오후 물류 입고 검수 및 진열',           '2026-10-12', '16:00', FALSE);
 
+-- 재고 점검 품목
+CREATE TABLE inventory_checks (
+    id BIGSERIAL PRIMARY KEY,
+    store_id BIGINT NOT NULL REFERENCES stores(id),
+    product_name VARCHAR(200) NOT NULL,
+    sku VARCHAR(20) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    category_label VARCHAR(100) NOT NULL,
+    pos_stock INT NOT NULL,
+    work_date DATE NOT NULL
+);
+
+INSERT INTO inventory_checks (store_id, product_name, sku, category, category_label, pos_stock, work_date) VALUES
+    -- 스파로스점 10/12
+    (1, '참치마요 삼각김밥 110g',     '88010430219', 'ff',    'FF / 김밥·간편식',  12, '2026-10-12'),
+    (1, '에그 샌드위치 180g',         '88010430220', 'ff',    'FF / 김밥·간편식',   5, '2026-10-12'),
+    (1, '코카콜라 캔 250ml',          '88010940188', 'drink', '음료 / 유제품',     24, '2026-10-12'),
+    (1, '바나나우유 240ml',           '88011042001', 'drink', '음료 / 유제품',      8, '2026-10-12'),
+    (1, '신라면 큰사발',              '88010120031', 'snack', '스낵 / 라면류',     15, '2026-10-12'),
+    (1, '포카칩 오리지널 66g',        '88012210032', 'snack', '스낵 / 라면류',     10, '2026-10-12'),
+    -- 스파로스점 10/13
+    (1, '삼각김밥 불고기 100g',       '88010430221', 'ff',    'FF / 김밥·간편식',   9, '2026-10-13'),
+    (1, '서울우유 1L',                '88010940190', 'drink', '음료 / 유제품',     14, '2026-10-13'),
+    (1, '허니버터칩 60g',             '88012210033', 'snack', '스낵 / 라면류',      7, '2026-10-13'),
+    -- 역삼점 10/12
+    (2, '햄치즈 샌드위치 150g',       '88010430222', 'ff',    'FF / 김밥·간편식',   6, '2026-10-12'),
+    (2, '포카리스웨트 500ml',         '88010940191', 'drink', '음료 / 유제품',     18, '2026-10-12'),
+    (2, '새우깡 90g',                 '88012210034', 'snack', '스낵 / 라면류',     11, '2026-10-12');
+
 -- 소비기한 현황
 CREATE TABLE expiry_items (
     id BIGSERIAL PRIMARY KEY,
