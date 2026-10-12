@@ -25,6 +25,18 @@ export default function Step4Page() {
     });
   };
 
+  const [discountMap, setDiscountMap] = useState<Record<string, number>>({});
+
+  const getDiscount = (id: string) => discountMap[id] ?? 20;
+
+  const adjustDiscount = (id: string, delta: number) => {
+    setDiscountMap((prev) => {
+      const current = prev[id] ?? 20;
+      const next = Math.max(10, Math.min(50, current + delta));
+      return { ...prev, [id]: next };
+    });
+  };
+
   const urgentCount = disposals.filter((d) => d.status === "urgent").length;
   const partialCount = disposals.filter((d) => d.status === "partial").length;
 
@@ -142,15 +154,25 @@ export default function Step4Page() {
                       </span>
                       <span className="font-bold">즉시 폐기 등록</span>
                     </button>
-                    <button
-                      className="w-full h-12 px-2 rounded-xl bg-[var(--color-secondary-container)] text-[var(--color-text-primary)] text-[14px] flex items-center justify-center gap-1 active:scale-95 transition-transform shadow-sm hover:brightness-95"
-                      type="button"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">
-                        percent
+                    <div className="flex items-center rounded-xl bg-[var(--color-secondary-container)] overflow-hidden shadow-sm">
+                      <button
+                        className="w-8 h-12 flex items-center justify-center text-[var(--color-text-primary)] hover:bg-black/5 active:scale-90 transition-transform"
+                        type="button"
+                        onClick={() => adjustDiscount(item.id, -10)}
+                      >
+                        <span className="material-symbols-outlined text-[16px]">remove</span>
+                      </button>
+                      <span className="flex-1 text-center text-[14px] font-bold text-[var(--color-text-primary)]">
+                        마감할인 {getDiscount(item.id)}%
                       </span>
-                      <span className="font-bold">마감할인 20%</span>
-                    </button>
+                      <button
+                        className="w-8 h-12 flex items-center justify-center text-[var(--color-text-primary)] hover:bg-black/5 active:scale-90 transition-transform"
+                        type="button"
+                        onClick={() => adjustDiscount(item.id, 10)}
+                      >
+                        <span className="material-symbols-outlined text-[16px]">add</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </article>
@@ -242,15 +264,25 @@ export default function Step4Page() {
                           선택 {item.disposeQty}개 폐기
                         </span>
                       </button>
-                      <button
-                        className="w-full h-12 px-2 rounded-xl bg-[var(--color-secondary-container)] text-[var(--color-text-primary)] text-[14px] flex items-center justify-center gap-1 active:scale-95 transition-transform shadow-sm hover:brightness-95"
-                        type="button"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">
-                          percent
+                      <div className="flex items-center rounded-xl bg-[var(--color-secondary-container)] overflow-hidden shadow-sm">
+                        <button
+                          className="w-8 h-12 flex items-center justify-center text-[var(--color-text-primary)] hover:bg-black/5 active:scale-90 transition-transform"
+                          type="button"
+                          onClick={() => adjustDiscount(item.id, -10)}
+                        >
+                          <span className="material-symbols-outlined text-[16px]">remove</span>
+                        </button>
+                        <span className="flex-1 text-center text-[14px] font-bold text-[var(--color-text-primary)]">
+                          마감할인 {getDiscount(item.id)}%
                         </span>
-                        <span className="font-bold">마감할인 20%</span>
-                      </button>
+                        <button
+                          className="w-8 h-12 flex items-center justify-center text-[var(--color-text-primary)] hover:bg-black/5 active:scale-90 transition-transform"
+                          type="button"
+                          onClick={() => adjustDiscount(item.id, 10)}
+                        >
+                          <span className="material-symbols-outlined text-[16px]">add</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
