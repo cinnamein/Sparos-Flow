@@ -23,16 +23,6 @@ export default function Step3Page() {
     setWorker(data.step3.worker);
   }, []);
 
-  const toggleTask = (id: string) => {
-    setTasks((prev) => {
-      const next = prev.map((t) =>
-        t.id === id ? { ...t, completed: !t.completed } : t,
-      );
-      updateStep3(next, shift, worker);
-      return next;
-    });
-  };
-
   const addTask = () => {
     if (!newTaskTitle.trim()) return;
     const task: ChecklistTask = {
@@ -173,26 +163,13 @@ export default function Step3Page() {
         {tasks.map((task) => (
           <article
             key={task.id}
-            className={`bg-[var(--color-surface-container-lowest)] rounded-xl border border-[var(--color-border-subtle)] p-[var(--spacing-space-md)] shadow-sm hover:shadow-md transition-shadow ${task.borderColor ? `border-l-4 ${task.borderColor}` : ""}`}
+            className="bg-[var(--color-surface-container-lowest)] rounded-xl border border-[var(--color-border-subtle)] p-[var(--spacing-space-md)] shadow-sm hover:shadow-md transition-shadow"
           >
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <input
-                  className="w-4 h-4 rounded accent-[var(--color-text-primary)] border-slate-300"
-                  type="checkbox"
-                  checked={task.completed}
-                  onChange={() => toggleTask(task.id)}
-                />
-                {task.time && (
-                  <span className="font-jetbrains text-[12px] font-bold text-[var(--color-text-primary)] flex items-center gap-1 bg-[var(--color-surface-muted)] px-2 py-0.5 rounded border border-[var(--color-border-subtle)]">
-                    <span className="material-symbols-outlined text-[13px] text-[var(--color-secondary)]">
-                      schedule
-                    </span>
-                    {task.time}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-1">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-hanken text-[13px] font-semibold text-[var(--color-text-primary)] flex-1">
+                {task.title}
+              </p>
+              <div className="flex items-center gap-1 shrink-0">
                 {isOwner && (
                   <button
                     aria-label="업무 상세 수정"
@@ -216,12 +193,6 @@ export default function Step3Page() {
                 </button>
               </div>
             </div>
-
-            <p
-              className={`font-hanken text-[13px] font-semibold mt-1.5 ${task.completed ? "text-[var(--color-text-muted)] line-through" : "text-[var(--color-text-primary)]"}`}
-            >
-              {task.title}
-            </p>
 
             {isOwner && (
               <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between bg-[var(--color-surface-muted)]/60 p-2 rounded-lg">
